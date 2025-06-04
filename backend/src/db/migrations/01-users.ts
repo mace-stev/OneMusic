@@ -4,7 +4,7 @@ import { OptionsInterface } from "../../typings/seeders";
 
 let options:OptionsInterface = {};
 if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA;  // define your schema in options object
+  options.schema = process.env.SCHEMA;
 }
 
 module.exports = {
@@ -33,14 +33,6 @@ module.exports = {
         type: Sequelize.STRING(256),
         allowNull: false,
         unique: true
-      },
-      bio: {
-        type: Sequelize.STRING(250),
-        defaultValue: ""
-      },
-      isHost: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
       },
       hashedPassword: {
         type: Sequelize.STRING.BINARY,

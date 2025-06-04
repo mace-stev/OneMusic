@@ -49,7 +49,6 @@ COPY ./package*.json .
 COPY ./.sequelizerc .
 
 RUN npm install --only=production
-RUN npm install @faker-js/faker
 
 COPY --from=build backend/dist ./dist
 

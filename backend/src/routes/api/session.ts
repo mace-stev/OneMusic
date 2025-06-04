@@ -47,18 +47,19 @@ router.post(
                 });
 
                 if (!user || !bcrypt.compareSync(password, user.hashedPassword.toString())) {
+                    console.log("?")
                     const err = new LoginError('Invalid credentials', 401);
                     err.status = 401;
                     throw err
                 }
 
+
                 await setTokenCookie(res, user);
 
-                let loginUser = user.getSafeUser()
-                console.log(loginUser)
-
+                let loginUser = await user.getSafeUser()
+                console.log(loginUser, "user!")
                 return res.json({
-                    user: loginUser
+                    ...loginUser
                 });
 
             } catch (e){

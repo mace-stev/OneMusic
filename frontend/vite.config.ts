@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 
 
 
-export default defineConfig(({command, mode}) => {
+export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
     plugins: [react()],
@@ -13,10 +13,11 @@ export default defineConfig(({command, mode}) => {
       "__GOOGLE_API": JSON.stringify(env.VITE_GOOGLE_API_KEY)
     },
     server: {
-      port: 3000,
+      open: true,
+      // port: 5000,
       proxy: {
         '/api': {
-          target: "http://localhost:8000",
+          target: "http://127.0.0.1:8000",
           changeOrigin: true,
           secure: true,
         }

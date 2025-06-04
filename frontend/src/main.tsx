@@ -1,28 +1,22 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
-import { BrowserRouter} from 'react-router-dom'
-import { Provider } from 'react-redux'
-import store from './store/index.ts'
-import { csrfFetch, restoreCSRF } from './store/csrf.ts'
-import * as sessionActions from './store/session.ts';
-
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { Provider as ReduxProvider } from "react-redux";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./router";
+import * as sessionActions from "./redux/session";
+import "./index.css";
+import store from "./redux/store";
+import { csrfFetch, restoreCSRF } from "./redux/csrf";
 
 declare global {
-    interface Window {
-      csrfFetch: any,
-      store: any,
-      sessionActions:any
-    }
+  interface Window {
+    csrfFetch: any;
+    store: any;
+    sessionActions: any;
+    "__REDUX_DEVTOOLS_EXTENSION_COMPOSE__": any;
+  }
 }
 
-// if(/Android|webOS|iPhone/i.test(navigator.userAgent)){
-//   console.log("mobile")
-// } else {
-
-//   console.log("not mobile");
-// }
 
 if (import.meta.env.VITE_NODE_ENV !== "production") {
   restoreCSRF();
@@ -32,23 +26,10 @@ if (import.meta.env.VITE_NODE_ENV !== "production") {
 }
 
 
-function Root() {
-
-
-
-
-  return (
-    <Provider store={store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
-  )
-}
-
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Root />
+    <ReduxProvider store={store}>
+      <RouterProvider router={router} />
+    </ReduxProvider>
   </React.StrictMode>
-)
+);

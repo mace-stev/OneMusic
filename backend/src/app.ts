@@ -32,21 +32,9 @@ app.use(
     })
 );
 
-// Set the _csrf token and create req.csrfToken method
-// app.use(
-//     csurf({
-//         cookie: {
-//             secure: isProduction,
-//             sameSite: isProduction && "lax",
-//             httpOnly: true
-//         }
-//     })
-// );
-
-
-//apply middleware to allow for usage of static react app from build
-app.use(express.static(path.join(__dirname, "react-app")));
-app.use(express.static(path.join(__dirname, 'react-app/assets/favicon.ico')));
+//apply middleware to allow for usage of static react-vite from build
+app.use(express.static(path.join(__dirname, "react-vite")));
+app.use(express.static(path.join(__dirname, 'react-vite/assets/favicon.ico')));
 
 //api routes
 app.use(routes);
@@ -68,6 +56,7 @@ app.get(/^(?!\/?api).*/, (req:Request, res:Response) => {
 });
 
 
+// 404 error handler middleware
 app.use((_req: Request, _res: Response, next: NextFunction) => {
     const err = new NoResourceError("The requested resource couldn't be found.");
     err.title = "Resource Not Found";
@@ -75,6 +64,8 @@ app.use((_req: Request, _res: Response, next: NextFunction) => {
     err.status = 404;
     next(err);
 });
+
+
 // Process sequelize errors
 app.use((err: NoResourceError, _req: Request, _res: Response, next: NextFunction): void => {
     // check if error is a Sequelize error:
@@ -90,19 +81,17 @@ app.use((err: NoResourceError, _req: Request, _res: Response, next: NextFunction
     next(err);
 });
 
-// // Error formatter
-
+// Error formatter
 app.use((err: NoResourceError, _req: Request, res: Response, _next: NextFunction): Response => {
     res.status(err.status || 500);
     console.error(err);
     return res.json({
-        // title: isProduction? null : err.title? err.title: 'Server Error',
+        title: isProduction? null : err.title? err.title: 'Server Error',
         message: err.message,
         errors: err.errors,
-        // stack: isProduction ? null : err.stack
+        stack: isProduction ? null : err.stack
     });
 });
-
 
 
 

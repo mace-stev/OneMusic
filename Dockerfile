@@ -34,7 +34,7 @@ FROM --platform=amd64 node:18-alpine as production
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
-ARG SCHEMA=firebnb_schema
+ARG SCHEMA=
 ENV SCHEMA=${SCHEMA}
 
 ARG DATABASE_URL
@@ -66,15 +66,10 @@ COPY /backend/package*.json .
 COPY /backend/.sequelizerc .
 
 
-COPY --from=frontendbuild frontend/dist ./dist/react-app
-COPY --from=frontendbuild frontend/public ./dist/react-app/public
-# COPY /frontend/dist ./dist/react-app
-# COPY /frontend/public ./dist/react-app/public
-
+COPY --from=frontendbuild frontend/dist ./dist/react-vite
+COPY --from=frontendbuild frontend/public ./dist/react-vite/public
 
 RUN npm install --only=production
-RUN npm install @faker-js/faker
-
 
 COPY --from=backendbuild backend/dist ./dist
 
