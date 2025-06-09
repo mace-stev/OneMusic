@@ -8,6 +8,7 @@ import db from '../../db/models';
 import userRouter from './users';
 import sessionRouter from './session';
 import playlistRouter from './playlist'
+import songRouter from './song'
 import { ForbiddenError, NoResourceError, UnauthorizedError } from "../../errors/customErrors";
 import csurf from "csurf";
 
@@ -30,6 +31,7 @@ router.use(
 router.use('/session', sessionRouter);
 router.use('/users', userRouter);
 router.use('/', playlistRouter)
+router.use('/', songRouter)
 
 
 

@@ -13,7 +13,7 @@ import { errors } from '../../typings/errors';
 import { NoResourceError } from '../../errors/customErrors';
 import { nextTick } from 'process';
 
-const { Playlist, Image } = db
+const { Playlist, Image, Song } = db
 
 
 const router = require('express').Router();
@@ -23,11 +23,14 @@ const router = require('express').Router();
 
 
 
-router.get('/playlist', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/playlist', async (req: AuthReq, res: Response, next: NextFunction) => {
     try {
         const playlists = await Playlist.findAll({
             include: {
                 model: Image,
+            },
+            where: {
+                ownerId: req.user.id
             }
         });
         res.json(playlists)
@@ -36,16 +39,22 @@ router.get('/playlist', async (req: Request, res: Response, next: NextFunction) 
         next(err)
     }
 })
-router.get('/playlist/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/playlist/:id', async (req: AuthReq, res: Response, next: NextFunction) => {
     try {
         const playlistId = req.params.id
         const playlist = await Playlist.findOne({
             where: {
-                id: playlistId
+                id: playlistId,
+                ownerId: req.user.id
             },
-            include: {
-                model: Image,
-            }
+            include: [
+                { model: Image },
+                {
+                    model: Song,
+                    through: { attributes: [] },
+                    include: [{ model: Image }],
+                }
+            ]
         });
         res.json(playlist)
     }
@@ -54,28 +63,32 @@ router.get('/playlist/:id', async (req: Request, res: Response, next: NextFuncti
     }
 })
 
-router.put('/playlist/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/playlist/:id', async (req: AuthReq, res: Response, next: NextFunction) => {
     try {
         const playlistId = req.params.id;
         const {
             name,
             previewId
         } = req.body
-     
 
-            const playlist = await Playlist.findByPk(playlistId);
-            if (!playlist) throw new NoResourceError("No playlist found with that id", 404);
-            await playlist.update({
-                name,
-                previewId
-            });
-            res.status(200).json({
-                id: playlistId,
-                name: name,
-                previewId: previewId
-            })
-            
-    
+
+        const playlist = await Playlist.findOne({
+            where:{
+                id:playlistId,
+                ownerId: req.user.id
+            }})
+        if (!playlist) throw new NoResourceError("No playlist found with that id", 404);
+        await playlist.update({
+            name,
+            previewId
+        });
+        res.status(200).json({
+            id: playlistId,
+            name: name,
+            previewId: previewId
+        })
+
+
     } catch (error) {
         next(error);
     }
@@ -89,10 +102,14 @@ router.put('/playlist/:id', async (req: Request, res: Response, next: NextFuncti
 
 
 
-router.delete('/playlist/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/playlist/:id', async (req: AuthReq, res: Response, next: NextFunction) => {
     try {
         const playlistId = req.params.id;
-        const playlist = await Playlist.findByPk(playlistId)
+        const playlist = await Playlist.findOne({
+            where:{
+                id:playlistId,
+                ownerId: req.user.id
+            }})
         if (!playlist) {
             return res.status(404).json({ message: "Playlist couldn't be found" });
         }
