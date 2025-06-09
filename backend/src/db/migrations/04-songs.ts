@@ -26,12 +26,27 @@ module.exports = {
       },
       playlistId: {
         allowNull:false,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+         references: {
+          model: {
+            tableName: "Playlists",  
+            schema: options.schema  
+          },
+          key: "id"
+        },
+        onDelete: 'CASCADE',
       },
       previewId: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        unique: true
+         references: {
+          model: {
+            tableName: "Images",  
+            schema: options.schema  
+          },
+          key: "id"
+        },
+        onDelete: 'SET NULL',
       },
       createdAt: {
         allowNull: false,

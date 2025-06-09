@@ -14,13 +14,13 @@ module.exports = {
     options.tableName = 'Images';
     return queryInterface.bulkInsert(options, [
   {
-    url: "The Greats"
+    url: "https://i.pinimg.com/originals/d7/27/73/d72773f5b4bb520b504f600edd032dae.jpg"
   },
     {
-    url: "The Greats"
+    url: "https://i.scdn.co/image/ab67616d0000b2739c6589cb7500fa8e6f343990"
   },
     {
-    url: "The Greats"
+    url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqPHtsaOJY2WgJ5bLcNwi227CBMs1bHeqAMA&s"
   },
 
   

@@ -38,6 +38,14 @@ module.exports = (sequelize: any, DataTypes: any) => {
 
         static associate(models: any) {
             // Associations go here
+             Song.belongsTo(models.Image,{
+                foreignKey: "previewId",
+                onDelete: "SET NULL"
+            })
+            Song.belongsTo(models.Playlist,{
+                foreignKey: "playlistId",
+                onDelete: "CASCADE"
+            })
         }
         // declare public static associations: { [key: string]: Association<Model<any, any>, Model<any, any>>; };
 
