@@ -38,6 +38,10 @@ module.exports = {
         type: Sequelize.STRING.BINARY,
         allowNull: false
       },
+      previewId: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
