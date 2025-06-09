@@ -1,4 +1,4 @@
-import { Association, CreationOptional, DataTypes, Model, Optional } from 'sequelize';
+import { ArrayDataType, Association, CreationOptional, DataTypes, Model, Optional } from 'sequelize';
 
 const { Validator } = require('sequelize');
 
@@ -6,12 +6,12 @@ type SongAttributes = {
     id: number,
     title: string,
     artist: string,
-    playlistId: number,
+    playlistIds: number,
     previewId: number,
 };
 
 type SongCreationAttributes = Optional<
-    SongAttributes, 'id'>;
+    SongAttributes, 'id' | "previewId">;
 
 module.exports = (sequelize: any, DataTypes: any) => {
 
@@ -20,8 +20,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
         declare title: string;
         declare artist: string;
         declare playlistId: number;
-        declare previewId: number;
-     
+        declare previewId: number | null;
+
 
 
         async getSafeSong() {
@@ -31,21 +31,22 @@ module.exports = (sequelize: any, DataTypes: any) => {
                 artist: this.artist,
                 playlistId: this.playlistId,
                 previewId: this.previewId
-              
+
             };
             return safeSong
         }
 
         static associate(models: any) {
             // Associations go here
-             Song.belongsTo(models.Image,{
+            Song.belongsTo(models.Image, {
                 foreignKey: "previewId",
                 onDelete: "SET NULL"
             })
-            Song.belongsTo(models.Playlist,{
-                foreignKey: "playlistId",
-                onDelete: "CASCADE"
-            })
+            Song.belongsToMany(models.Playlist, {
+                through: models.PlaylistSong,          
+                foreignKey: 'songId',
+                otherKey: 'playlistId',
+            });
         }
         // declare public static associations: { [key: string]: Association<Model<any, any>, Model<any, any>>; };
 
@@ -68,7 +69,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
                     },
                 }
             },
-               artist: {
+            artist: {
                 type: DataTypes.STRING,
                 allowNull: false,
                 validate: {
@@ -79,7 +80,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
                     },
                 }
             },
-            playlistId: {
+            playlistIds: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 validate: {
@@ -89,11 +90,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
                 type: DataTypes.INTEGER,
                 allowNull: true,
                 validate: {
-                 
-                  
+
+
                 }
             },
-            
+
         },
         {
             sequelize,
