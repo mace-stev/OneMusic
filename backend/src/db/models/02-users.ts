@@ -9,11 +9,11 @@ type UserAttributes = {
     username: string,
     email: string,
     hashedPassword: string,
-    previewId: string
+    previewId: number
 };
 
 type UserCreationAttributes = Optional<
-    UserAttributes, 'id'>;
+    UserAttributes, 'id'| "previewId">;
 
 module.exports = (sequelize: any, DataTypes: any) => {
 
@@ -24,7 +24,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         declare email: string;
         declare username: string;
         declare hashedPassword: string;
-        declare previewId: string;
+        declare previewId: number;
 
 
         async getSafeUser() {

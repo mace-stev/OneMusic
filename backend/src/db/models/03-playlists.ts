@@ -10,7 +10,7 @@ type PlaylistAttributes = {
 };
 
 type PlaylistCreationAttributes = Optional<
-    PlaylistAttributes, 'id'>;
+    PlaylistAttributes, 'id' | "previewId">;
 
 module.exports = (sequelize: any, DataTypes: any) => {
 
@@ -19,7 +19,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         declare name: string;
         declare ownerId: number;
         declare previewId: number;
-     
+
 
 
         async getSafePlaylist() {
@@ -28,24 +28,26 @@ module.exports = (sequelize: any, DataTypes: any) => {
                 name: this.name,
                 ownerId: this.ownerId,
                 previewId: this.previewId
-              
+
             };
             return safePlaylist
         }
 
         static associate(models: any) {
             // Associations go here
-             Playlist.belongsTo(models.Image,{
+            Playlist.belongsTo(models.Image, {
                 foreignKey: "previewId",
                 onDelete: "SET NULL"
             })
-            Playlist.belongsTo(models.User,{
+            Playlist.belongsTo(models.User, {
                 foreignKey: "ownerId",
                 onDelete: "CASCADE"
             })
-            Playlist.hasMany(models.Song,{
-                foreignKey: "playlistId",
-            })
+            Playlist.belongsToMany(models.Song, {
+                through: models.PlaylistSong,
+                foreignKey: 'playlistId',
+                otherKey: 'songId',
+            });
         }
         // declare public static associations: { [key: string]: Association<Model<any, any>, Model<any, any>>; };
 
@@ -78,11 +80,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
                 type: DataTypes.INTEGER,
                 allowNull: true,
                 validate: {
-                 
-                  
+
+
                 }
             },
-            
+
         },
         {
             sequelize,
