@@ -31,6 +31,15 @@ module.exports = (sequelize: any, DataTypes: any) => {
 
         static associate(models: any) {
             // Associations go here
+              Image.hasMany(models.Playlist,{
+                foreignKey: "previewId",
+            })
+            Image.hasMany(models.User,{
+                foreignKey: "previewId"
+            })
+            Image.hasMany(models.Song,{
+                foreignKey: "previewId"
+            })
         }
         // declare public static associations: { [key: string]: Association<Model<any, any>, Model<any, any>>; };
 
