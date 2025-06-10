@@ -119,6 +119,41 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
         next(error);
     }
 })
+router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = req.params.id;
+        const {
+            firstName,
+            lastName,
+            username,
+            previewId
+        } = req.body
+        if (userId !== String(userId)) {
+
+            const user = await User.findByPk(userId);
+            if (!user) throw new NoResourceError("No user found with those credentials", 404);
+            await user.update({
+                firstName,
+                lastName,
+                username,
+                previewId
+            });
+            res.status(200).json({
+                id: req.params.id,
+                firstName: firstName,
+                lastName: lastName,
+                username: username,
+                previewId: previewId
+            })
+            
+        } else {
+            throw new Error("You can not edit this account.")
+        }
+    } catch (error) {
+        next(error);
+    }
+})
+
 
 
 
