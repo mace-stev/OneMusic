@@ -38,9 +38,17 @@ module.exports = {
         type: Sequelize.STRING.BINARY,
         allowNull: false
       },
-      previewId: {
+     previewId: {
         type: Sequelize.INTEGER,
-        allowNull: true
+        allowNull: true,
+         references: {
+          model: {
+            tableName: "Images",  
+            schema: options.schema  
+          },
+          key: "id"
+        },
+        onDelete: 'SET NULL',
       },
       createdAt: {
         allowNull: false,

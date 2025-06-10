@@ -6,7 +6,7 @@ type SongAttributes = {
     id: number,
     title: string,
     artist: string,
-    playlistIds: number,
+    playlistId: number,
     previewId: number,
 };
 
@@ -80,7 +80,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
                     },
                 }
             },
-            playlistIds: {
+            playlistId: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 validate: {

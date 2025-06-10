@@ -18,7 +18,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         declare id: CreationOptional<number>;
         declare name: string;
         declare ownerId: number;
-        declare previewId: number;
+        declare previewId: number | null;
 
 
 

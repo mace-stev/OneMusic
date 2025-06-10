@@ -24,7 +24,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         declare email: string;
         declare username: string;
         declare hashedPassword: string;
-        declare previewId: number;
+        declare previewId: number | null;
 
 
         async getSafeUser() {

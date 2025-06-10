@@ -39,6 +39,31 @@ router.get('/playlist', async (req: AuthReq, res: Response, next: NextFunction) 
         next(err)
     }
 })
+router.post('/playlist', async (req: AuthReq, res: Response, next: NextFunction) => {
+    try {
+        const {
+            name,
+            previewId
+        } = req.body
+
+
+
+        const playlist = await Playlist.create({
+            name,
+            previewId
+        })
+     
+        res.status(200).json({
+            id: playlist.id,
+            name: name,
+            previewId: previewId
+        })
+
+
+    } catch (error) {
+        next(error);
+    }
+})
 router.get('/playlist/:id', async (req: AuthReq, res: Response, next: NextFunction) => {
     try {
         const playlistId = req.params.id
