@@ -17,7 +17,7 @@ FROM --platform=amd64 node:18-alpine as api
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
-ARG SCHEMA=firebnb_schema
+ARG SCHEMA=onemusic
 ENV SCHEMA=${SCHEMA}
 
 ARG DATABASE_URL
