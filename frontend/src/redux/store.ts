@@ -6,10 +6,12 @@ import {
 } from "redux";
 import thunk from "redux-thunk";
 import sessionReducer from "./session";
+import playlistReducer from "./playlist";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 const rootReducer = combineReducers({
   session: sessionReducer,
+  playlist: playlistReducer
 });
 
 
