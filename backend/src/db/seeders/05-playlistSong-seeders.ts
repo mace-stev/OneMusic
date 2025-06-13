@@ -11,22 +11,19 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   up: async (queryInterface:any, Sequelize:any) => {
-    options.tableName = 'Songs';
+    options.tableName = 'PlaylistSong';
     return queryInterface.bulkInsert(options, [
   {
-    title: "G6",
-    artist: "Lil Wayne",
-    previewId: "1"
+    playlistId: 1,
+    songId: 1
   },
     {
-    title: "Let's Go",
-    artist: "Key Glock",
-    previewId: "2"
+    playlistId: 2,
+    songId: 2
   },
     {
-    title: "BLOCC IS HOT",
-    artist: "NLE Choppa",
-    previewId: "3"
+    playlistId: 3,
+    songId: 3
   },
  
   
@@ -34,7 +31,7 @@ module.exports = {
   },
 
   down: async (queryInterface:any, Sequelize:any) => {
-    options.tableName = 'Songs';
+    options.tableName = 'PlaylistSong';
     const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options, {
       username: { [Op.in]: [''] }

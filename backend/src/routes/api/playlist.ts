@@ -13,7 +13,7 @@ import { errors } from '../../typings/errors';
 import { NoResourceError } from '../../errors/customErrors';
 import { nextTick } from 'process';
 
-const { Playlist, Image, Song } = db
+const { Playlist, Image, Song, PlaylistSong } = db
 
 
 const router = require('express').Router();
@@ -57,6 +57,31 @@ router.post('/playlist', async (req: AuthReq, res: Response, next: NextFunction)
             id: playlist.id,
             name: name,
             previewId: previewId
+        })
+
+
+    } catch (error) {
+        next(error);
+    }
+})
+router.post('/playlist/:id', async (req: AuthReq, res: Response, next: NextFunction) => {
+    try {
+        const {
+            songId
+        } = req.body
+        const playlistId=req.params.id
+
+
+
+        const playlistSong = await PlaylistSong.create({
+            playlistId,
+            songId
+        })
+     
+        res.status(200).json({
+            id: playlistSong.id,
+            playlistId: playlistId,
+            songId: songId
         })
 
 
