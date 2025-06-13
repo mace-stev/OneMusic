@@ -35,7 +35,7 @@ const removePlaylistAction = (playlistId: IPlaylistId) => ({
 
 // ============ THUNK =================
 
-// Get all PLAYLISTes
+// Get all playlists
 export const thunkGetAllPlaylists = (): any => async (dispatch: any) => {
     try {
      
@@ -162,6 +162,7 @@ export default function playlistReducer(
     };
     let newById = { ...newState.byId };
     let allPlaylist = [...newState.allPlaylists];
+    
 
     switch (action.type) {
         case GET_ALL_PLAYLISTS:
@@ -180,11 +181,13 @@ export default function playlistReducer(
 
         case GET_ONE_PLAYLIST:
             if (!Array.isArray(action.payload)) {
+            
                 const playlist = action.payload;
+                
                 newById[playlist.id] = playlist;
 
-                newState.byId = { ...newState.byId, [playlist.id]: playlist};
-                newState.allPlaylists = [...newState.allPlaylists, playlist];
+                newState.byId = newById
+                newState.allPlaylists = [playlist];
 
                 return newState;
             }
