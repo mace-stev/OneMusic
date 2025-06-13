@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { useModal } from "../../context/Modal";
 import "./LoginForm.css";
 import { AnyAction } from "redux";
+import { FaUserCircle } from 'react-icons/fa';
 
 
 interface IErrors {
@@ -35,32 +36,31 @@ function LoginFormModal():JSX.Element {
   };
 
   return (
-    <>
+    <div className="login-modal-div">
       <h1>Log In</h1>
-      <form onSubmit={(e) => handleSubmit(e)}>
-        <label>
-          Email
+      <FaUserCircle style={{ color: '#7d7a85' }} className="profile-pic" />
+      <form onSubmit={(e) => handleSubmit(e)} className="login-form">
+      
           <input
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
             required
           />
-        </label>
         {errors.email && <p>{errors.email}</p>}
-        <label>
-          Password
+        
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
             required
           />
-        </label>
         {errors.password && <p>{errors.password}</p>}
         <button type="submit">Log In</button>
       </form>
-    </>
+    </div>
   );
 }
 
