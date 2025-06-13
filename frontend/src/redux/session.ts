@@ -91,10 +91,10 @@ export const thunkSignup = (user: ISignUpUser): any => async (dispatch: any) => 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         firstName,
-        password,
         lastName,
-        email,
         username,
+        email,
+        password
       }),
     });
     const data = await response.json();

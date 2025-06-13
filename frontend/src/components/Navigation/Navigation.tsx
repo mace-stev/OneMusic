@@ -46,9 +46,11 @@ function Navigation(): JSX.Element {
     return (
         <nav className="nav-bar">
             <div className="nav-left">
-                <NavLink to="/">
+                <NavLink to="/" className="OneMusic-navlink">
                     <img src="https://cdn.pixabay.com/photo/2016/03/23/17/26/music-note-1275177_640.png" alt="OneMusic logo" className="OneMusic-logo" />
+                    <h2>OneMusic</h2>
                 </NavLink>
+                
             </div>
             <form className="search-bar-form" onSubmit={(e) => {
                 e.preventDefault()
@@ -72,9 +74,9 @@ function Navigation(): JSX.Element {
             <div className="nav-right">
                
                 <div>
-                    {!sessionUser && (
+                
                         <ProfileButton />
-                    )}
+                    
                 </div>
                 
             </div>
