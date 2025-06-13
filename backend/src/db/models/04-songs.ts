@@ -6,7 +6,6 @@ type SongAttributes = {
     id: number,
     title: string,
     artist: string,
-    playlistId: number,
     previewId: number,
 };
 
@@ -19,7 +18,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
         declare id: CreationOptional<number>;
         declare title: string;
         declare artist: string;
-        declare playlistId: number;
         declare previewId: number | null;
 
 
@@ -29,7 +27,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
                 id: this.id,
                 title: this.title,
                 artist: this.artist,
-                playlistId: this.playlistId,
                 previewId: this.previewId
 
             };
@@ -78,12 +75,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
                             throw new Error('Artist name must be between 1 - 120 characters');
                         }
                     },
-                }
-            },
-            playlistId: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-                validate: {
                 }
             },
             previewId: {

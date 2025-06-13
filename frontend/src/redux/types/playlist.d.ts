@@ -5,6 +5,10 @@ export interface IPlaylist {
     name: string;
     ownerId: number;
     previewId?: string;
+    Image?:{
+        id: number;
+        url: string;
+    }
     
 }
 

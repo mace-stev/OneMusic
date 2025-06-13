@@ -2,40 +2,43 @@
 
 import { OptionsInterface } from "../../typings/seeders";
 
-let options:OptionsInterface = {};
+let options: OptionsInterface = {};
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;
 }
 
 module.exports = {
-  up: async (queryInterface:any, Sequelize:any) => {
-    return queryInterface.createTable("Songs", {
+  up: async (queryInterface: any, Sequelize: any) => {
+    return queryInterface.createTable("PlaylistSong", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      title: {
-        allowNull:false,
-        type: Sequelize.STRING(120)
-      },
-       artist: {
-        allowNull:false,
-        type: Sequelize.STRING(120)
-      },
- 
-      previewId: {
+      playlistId: {
+        allowNull: false,
         type: Sequelize.INTEGER,
-        allowNull: true,
-         references: {
+        references: {
           model: {
-            tableName: "Images",  
-            schema: options.schema  
+            tableName: "Playlists",
+            schema: options.schema
           },
           key: "id"
         },
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
+      },
+      songId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: "Songs",
+            schema: options.schema
+          },
+          key: "id"
+        },
+        onDelete: 'CASCADE',
       },
       createdAt: {
         allowNull: false,
@@ -49,8 +52,8 @@ module.exports = {
       }
     }, options);
   },
-  down: async (queryInterface:any, Sequelize:any) => {
-    options.tableName = "Songs";
+  down: async (queryInterface: any, Sequelize: any) => {
+    options.tableName = "PlaylistSong";
     return queryInterface.dropTable(options);
   }
 };
