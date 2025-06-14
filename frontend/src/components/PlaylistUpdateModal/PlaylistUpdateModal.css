@@ -1,0 +1,22 @@
+.playlist-update-form{
+    display: flex;
+    flex-direction: column;
+}
+.playlist-update-modal-div{
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.playlist-update-form>input{
+    width: 100%;
+    box-sizing: border-box;
+    margin: 1rem 0
+}
+.playlist-update-div>h1{
+    font-size: 1.5rem;
+    margin-top: .5rem;
+}
+.playlist-update-div>h2{
+    font-size: .9rem;
+    margin-top: .5rem;
+}
