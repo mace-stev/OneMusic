@@ -7,6 +7,7 @@ body {
 .OneMusic-logo {
     width: 2.5rem;
     height: 2.5rem;
+    fill: white;
    
 }
 
@@ -52,6 +53,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    border: solid white;
 }
 
 .nav-bar {
@@ -60,8 +62,11 @@ body {
     align-items: center;
     list-style: none;
     padding: 10px 60px;
-    border-bottom: 1.5px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1.5px solid white;
     height: 5rem;
+}
+.OneMusic-title{
+    color: white;
 }
 
 .nav-right {

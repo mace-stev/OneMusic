@@ -8,7 +8,16 @@ export interface IPlaylist {
     Image?:{
         id: number;
         url: string;
-    }
+    };
+    Songs?:{
+        Image?:{
+            id: number;
+            url: string;
+        }
+        artist: string;
+        id: number;
+        title: string;
+    }[]
     
 }
 

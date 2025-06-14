@@ -47,8 +47,8 @@ function Navigation(): JSX.Element {
         <nav className="nav-bar">
             <div className="nav-left">
                 <NavLink to="/" className="OneMusic-navlink">
-                    <img src="https://cdn.pixabay.com/photo/2016/03/23/17/26/music-note-1275177_640.png" alt="OneMusic logo" className="OneMusic-logo" />
-                    <h2>OneMusic</h2>
+                    <img src="https://img.icons8.com/ios_filled/512w/FFFFFF/musical-notes.png" alt="OneMusic logo" className="OneMusic-logo" />
+                    <h2 className="OneMusic-title">OneMusic</h2>
                 </NavLink>
                 
             </div>

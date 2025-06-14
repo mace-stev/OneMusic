@@ -24,7 +24,7 @@ function Home() {
 
     return (<>
         <div className="playlist-header">
-            <h1>Playlist</h1>
+            <h1>Playlists</h1>
             <button>Merge</button>
             <button>Upload</button>
             <button>transfer</button>
@@ -35,8 +35,9 @@ function Home() {
                     return<div key={index} onClick={(e)=>{
                         navigate(`/playlist/${element.id}`);
                     }}>
-                        <div><img src={element?.Image?.url}/></div>
-                        <div><h3>{element.name}</h3></div>
+                        <div className="playlist-image-container"><img src={element?.Image?.url}/></div>
+                        <div><h3 className="playlist-name">{element.name}</h3></div>
+                        <button className="playlist-options-button">...</button>
                         </div>
                 })}
             </div>
