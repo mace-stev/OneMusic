@@ -1,0 +1,22 @@
+.song-update-form{
+    display: flex;
+    flex-direction: column;
+}
+.song-update-modal-div{
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.song-update-form>input{
+    width: 100%;
+    box-sizing: border-box;
+    margin: 1rem 0
+}
+.song-update-div>h1{
+    font-size: 1.5rem;
+    margin-top: .5rem;
+}
+.song-update-div>h2{
+    font-size: .9rem;
+    margin-top: .5rem;
+}
