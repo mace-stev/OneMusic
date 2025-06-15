@@ -69,19 +69,21 @@ function PlaylistDetails() {
                             <h3 className="playlist-song-artist">{element.artist}</h3>
 
                         </div>
-                        <button className="playlist-song-options-button" onClick={(e) => toggleMenu(e)}>...</button>
+                        <button className="playlist-song-options-button" onClick={(e) => {
+                            e.stopPropagation()
+                             toggleMenu(e)}}>...</button>
                         {showMenu && (
                        <ul className={"playlist-song-dropdown"} ref={ulRef}>
-                            <li><OpenModalMenuItem
+                            <OpenModalMenuItem
                                 itemText="Delete Song"
                                 onItemClick={closeMenu}
-                                modalComponent={<SongDeleteModal />}
-                            /></li>
-                            <li><OpenModalMenuItem
+                                modalComponent={<SongDeleteModal songId={{id: element.id}} />}
+                            />
+                            <OpenModalMenuItem
                                 itemText="Update Song"
                                 onItemClick={closeMenu}
-                                modalComponent={<SongUpdateModal />}
-                            /></li>
+                                modalComponent={<SongUpdateModal  />}
+                            />
                         </ul>
                         )}
                     </div>
