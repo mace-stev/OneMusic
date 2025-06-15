@@ -48,7 +48,7 @@ function Home() {
         if (!isLoaded) {
             getPlaylists();
         }
-    }, [dispatch, playlists, isLoaded]);
+    }, [dispatch, playlists.length, isLoaded]);
     console.log(playlists)
 
     return (<>
@@ -59,33 +59,35 @@ function Home() {
             <button>transfer</button>
         </div>
         <div className="playlist-container-div">
-            <div className="playlist-container">
+            
                 {playlists.map((element, index) => {
-                    return <div key={index} onClick={(e) => {
+                    return <div className="playlist-container"key={index} >
+                        <div className="playlist-image-container" onClick={(e) => {
                         navigate(`/playlist/${element.id}`);
-                    }}>
-                        <div className="playlist-image-container"><img src={element?.Image?.url} /></div>
-                        <div><h3 className="playlist-name">{element.name}</h3></div>
+                    }}><img src={element?.Image?.url} /></div>
+                        <div onClick={(e) => {
+                        navigate(`/playlist/${element.id}`);
+                    }}><h3 className="playlist-name">{element.name}</h3></div>
                         <button className="playlist-options-button" onClick={(e) => toggleMenu(e)}>...</button>
                         {showMenu && (
                             <ul className={"playlist-dropdown"} ref={ulRef}>
-                                <li><OpenModalMenuItem
+                                <OpenModalMenuItem
                                     itemText="Delete Playlist"
                                     onItemClick={closeMenu}
-                                    modalComponent={<PlaylistDeleteModal />}
-                                /></li>
-                                <li><OpenModalMenuItem
+                                    modalComponent={<PlaylistDeleteModal playlistId={{id:element.id}} />}
+                                />
+                                <OpenModalMenuItem
                                     itemText="Update Playlist"
                                     onItemClick={closeMenu}
                                     modalComponent={<PlaylistUpdateModal />}
-                                /></li>
+                                />
                             </ul>
                         )}
                     </div>
                 })}
             </div>
             <div className="apps-linked-container"></div>
-        </div>
+        
 
     </>)
 }
