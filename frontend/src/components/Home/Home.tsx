@@ -16,12 +16,14 @@ function Home() {
 
 
     const [showMenu, setShowMenu] = useState(false);
+    
     const ulRef = useRef<any>();
 
     const toggleMenu = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation(); // Keep from bubbling up to document and triggering closeMenu
         setShowMenu(!showMenu);
     };
+   
 
 
     useEffect(() => {
@@ -37,6 +39,8 @@ function Home() {
 
         return () => document.removeEventListener("click", closeMenu);
     }, [showMenu]);
+
+    
 
     const closeMenu = () => setShowMenu(false);
 
@@ -55,39 +59,46 @@ function Home() {
         <div className="playlist-header">
             <h1>Playlists</h1>
             <button>Merge</button>
-            <button>Upload</button>
+            
+
+                <div className="playlist-button"><OpenModalMenuItem
+                    itemText="create"
+                    onItemClick={closeMenu}
+                    modalComponent={<PlaylistUpdateModal />}
+                /></div>
+
             <button>transfer</button>
         </div>
         <div className="playlist-container-div">
-            
-                {playlists.map((element, index) => {
-                    return <div className="playlist-container"key={index} >
-                        <div className="playlist-image-container" onClick={(e) => {
+
+            {playlists.map((element, index) => {
+                return <div className="playlist-container" key={index} >
+                    <div className="playlist-image-container" onClick={(e) => {
                         navigate(`/playlist/${element.id}`);
                     }}><img src={element?.Image?.url} /></div>
-                        <div onClick={(e) => {
+                    <div onClick={(e) => {
                         navigate(`/playlist/${element.id}`);
                     }}><h3 className="playlist-name">{element.name}</h3></div>
-                        <button className="playlist-options-button" onClick={(e) => toggleMenu(e)}>...</button>
-                        {showMenu && (
-                            <ul className={"playlist-dropdown"} ref={ulRef}>
-                                <OpenModalMenuItem
-                                    itemText="Delete Playlist"
-                                    onItemClick={closeMenu}
-                                    modalComponent={<PlaylistDeleteModal playlistId={{id:element.id}} />}
-                                />
-                                <OpenModalMenuItem
-                                    itemText="Update Playlist"
-                                    onItemClick={closeMenu}
-                                    modalComponent={<PlaylistUpdateModal />}
-                                />
-                            </ul>
-                        )}
-                    </div>
-                })}
-            </div>
-            <div className="apps-linked-container"></div>
-        
+                    <button className="playlist-options-button" onClick={(e) => toggleMenu(e)}>...</button>
+                    {showMenu && (
+                        <ul className={"playlist-dropdown"} ref={ulRef}>
+                            <OpenModalMenuItem
+                                itemText="Delete Playlist"
+                                onItemClick={closeMenu}
+                                modalComponent={<PlaylistDeleteModal playlistId={{ id: element.id }} />}
+                            />
+                            <OpenModalMenuItem
+                                itemText="Update Playlist"
+                                onItemClick={closeMenu}
+                                modalComponent={<PlaylistUpdateModal />}
+                            />
+                        </ul>
+                    )}
+                </div>
+            })}
+        </div>
+        <div className="apps-linked-container"></div>
+
 
     </>)
 }
