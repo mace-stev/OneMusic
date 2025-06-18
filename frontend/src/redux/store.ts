@@ -7,11 +7,15 @@ import {
 import thunk from "redux-thunk";
 import sessionReducer from "./session";
 import playlistReducer from "./playlist";
+import songReducer from "./song";
+import ImageReducer from "./image";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 const rootReducer = combineReducers({
   session: sessionReducer,
-  playlist: playlistReducer
+  playlist: playlistReducer,
+  song: songReducer,
+  image: ImageReducer
 });
 
 

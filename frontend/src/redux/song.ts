@@ -38,7 +38,7 @@ const removeSongAction = (SongId: ISongId) => ({
 // Get all Songes
 export const thunkGetAllSongs = (songFilters: IFilteredSong): any => async (dispatch: any) => {
     try {
-        const url = new URL('/api/song', window.location.origin);
+        const url = new URL('/api/songs', window.location.origin);
         if(songFilters.title){
             url.searchParams.set('title', songFilters.title);
 
@@ -66,7 +66,7 @@ export const thunkGetOneSong =
     (songId: string): any =>
     async (dispatch: any) => {
         try {
-            const response = await fetch(`/api/song/${songId}`);
+            const response = await fetch(`/api/songs/${songId}`);
             if (response.ok) {
                 const data = await response.json();
                 dispatch(getOneSongAction(data));
@@ -86,7 +86,7 @@ export const thunkCreateSong =
     (songData: ISongForm): any =>
     async (dispatch: any) => {
         try {
-            const response = await csrfFetch('/api/song/', {
+            const response = await csrfFetch('/api/songs/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(songData),
@@ -111,7 +111,7 @@ export const thunkUpdateSong =
     (songData: ISongForm, songId: number | string): any =>
     async (dispatch: any) => {
         try {
-            const response = await csrfFetch(`/api/song/${songId}`, {
+            const response = await csrfFetch(`/api/songs/${songId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(songData),
@@ -135,9 +135,12 @@ export const thunkRemoveSong =
     (songId: ISongId): any =>
     async (dispatch: any) => {
         try {
-            const response = await csrfFetch(`/api/song/${songId}`, {
+            const response = await csrfFetch(`/api/songs/${songId.id}`, {
                 method: 'DELETE',
-                headers: { "Content-Type": "application/json" }
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    playlistId: songId['playlistId']
+                })
              
             });
             if (response.ok) {
@@ -160,7 +163,7 @@ const initialState: SongState = {
     allSongs: [],
 };
 
-export default function SongReducer(
+export default function songReducer(
     state = initialState,
     action: ISongActionCreator,
 ): SongState {

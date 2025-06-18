@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   up: async (queryInterface: any, Sequelize: any) => {
-    return queryInterface.createTable("PlaylistSong", {
+    return queryInterface.createTable("PlaylistSongs", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -53,7 +53,7 @@ module.exports = {
     }, options);
   },
   down: async (queryInterface: any, Sequelize: any) => {
-    options.tableName = "PlaylistSong";
+    options.tableName = "PlaylistSongs";
     return queryInterface.dropTable(options);
   }
 };

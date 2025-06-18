@@ -152,13 +152,12 @@ router.put('/playlist/:id', async (req: AuthReq, res: Response, next: NextFuncti
 
 
 
-router.delete('/playlist/:id', async (req: AuthReq, res: Response, next: NextFunction) => {
+router.delete('/playlist/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const playlistId = req.params.id;
         const playlist = await Playlist.findOne({
             where:{
-                id:playlistId,
-                ownerId: req.user.id
+                id:playlistId
             }})
         if (!playlist) {
             return res.status(404).json({ message: "Playlist couldn't be found" });

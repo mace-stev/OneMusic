@@ -44,7 +44,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
                 onDelete: "CASCADE"
             })
             Playlist.belongsToMany(models.Song, {
-                through: 'PlaylistSong',
+                through: 'PlaylistSongs',
                 foreignKey: 'playlistId',
                 otherKey: 'songId',
             });

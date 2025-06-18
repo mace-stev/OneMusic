@@ -1,2 +1,2 @@
-import SongOptionsModal from "./SongOptionsModal";
-export default SongOptionsModal
+import SongDeleteModal from "./SongDeleteModal";
+export default SongDeleteModal

@@ -14,7 +14,7 @@ import { NoResourceError } from '../../errors/customErrors';
 import { nextTick } from 'process';
 import { WhereOptions } from 'sequelize';
 
-const { Playlist, Image, Song } = db
+const { Playlist, Image, Song, PlaylistSong } = db
 
 
 const router = require('express').Router();
@@ -149,13 +149,13 @@ router.put('/songs/:id', async (req: AuthReq, res: Response, next: NextFunction)
 
 
 
-router.delete('/songs/:id', async (req: AuthReq, res: Response, next: NextFunction) => {
+router.delete('/songs/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { playlistId } = req.body
         const songId = req.params.id;
-        const song = await Song.findOne({
+        const song = await PlaylistSong.findOne({
             where: {
-                id: songId,
+                songId: songId,
                 playlistId: playlistId
             }
         })

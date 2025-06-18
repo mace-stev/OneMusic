@@ -16,6 +16,7 @@ export interface ISongForm {
 
 export interface ISongId {
     id: number
+    playlistId?: number
 }
 
 export interface SongState {

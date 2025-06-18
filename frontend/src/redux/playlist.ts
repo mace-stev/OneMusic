@@ -129,7 +129,7 @@ export const thunkRemovePlaylist =
     (playlistId: IPlaylistId): any =>
     async (dispatch: any) => {
         try {
-            const response = await csrfFetch(`/api/playlist/${playlistId}`, {
+            const response = await csrfFetch(`/api/playlist/${playlistId.id}`, {
                 method: 'DELETE',
                 headers: { "Content-Type": "application/json" }
             });

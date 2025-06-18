@@ -1,28 +1,23 @@
-.playlist-delete-form{
-    display: flex;
-    flex-direction: column;
-}
-.playlist-delete-modal-div{
+
+
+.song-delete-modal-div {
     text-align: center;
     padding: 3rem 2rem;
     background: #1e1e1e;
     border: solid white
 }
 
-.playlist-delete-form>input{
-    width: 100%;
-    box-sizing: border-box;
-    margin: 1rem 0
-}
-.playlist-delete-div>h1{
+.song-delete-div>h1 {
     font-size: 1.5rem;
     margin-top: .5rem;
 }
-.playlist-delete-div>h2{
+
+.song-delete-div>h2 {
     font-size: .9rem;
     margin-top: .5rem;
 }
-.playlist-delete-modal-div>button{
+
+.song-delete-modal-div>button {
     width: 5rem;
     height: 2rem;
     margin: 1rem;
