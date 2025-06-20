@@ -7,6 +7,7 @@ import { thunkGetAllPlaylists } from "../../redux/playlist";
 import PlaylistUpdateModal from "../PlaylistUpdateModal";
 import PlaylistDeleteModal from "../PlaylistDeleteModal";
 import OpenModalMenuItem from "../Navigation/OpenModalMenuItem";
+import CreatePlaylistModal from "../CreatePlaylistModal";
 
 function Home() {
     const playlists = useSelector((state: RootState) => state.playlist.allPlaylists);
@@ -64,7 +65,7 @@ function Home() {
                 <div className="playlist-button"><OpenModalMenuItem
                     itemText="create"
                     onItemClick={closeMenu}
-                    modalComponent={<PlaylistUpdateModal />}
+                    modalComponent={<CreatePlaylistModal />}
                 /></div>
 
             <button>transfer</button>

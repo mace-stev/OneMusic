@@ -101,10 +101,10 @@ export const thunkCreatePlaylist =
 
 // Update a new PLAYLIST
 export const thunkUpdatePlaylist =
-    (playlistData: IPlaylistForm, playlistId: number | string): any =>
+    (playlistData: IPlaylist): any =>
     async (dispatch: any) => {
         try {
-            const response = await csrfFetch(`/api/playlist/${playlistId}`, {
+            const response = await csrfFetch(`/api/playlist/${playlistData.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(playlistData),

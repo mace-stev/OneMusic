@@ -3,8 +3,8 @@
 export interface IPlaylist {
     id: number;
     name: string;
-    ownerId: number;
-    previewId?: string;
+    ownerId?: number;
+    previewId: number;
     Image?:{
         id: number;
         url: string;
