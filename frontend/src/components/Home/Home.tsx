@@ -91,7 +91,7 @@ function Home() {
                             <OpenModalMenuItem
                                 itemText="Update Playlist"
                                 onItemClick={closeMenu}
-                                modalComponent={<PlaylistUpdateModal />}
+                                modalComponent={<PlaylistUpdateModal playlistId={element.id} previewId={element.previewId}/>}
                             />
                         </ul>
                     )}

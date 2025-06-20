@@ -5,6 +5,7 @@ import { useModal } from "../../context/Modal";
 import "./LoginForm.css";
 import { AnyAction } from "redux";
 import { FaUserCircle } from 'react-icons/fa';
+import { thunkGetAllPlaylists } from "../../redux/playlist";
 
 
 interface IErrors {
@@ -29,6 +30,7 @@ function LoginFormModal():JSX.Element {
     );
 
     if (serverResponse.ok) {
+      dispatch(thunkGetAllPlaylists())
       closeModal();
     } else {
       setErrors(serverResponse);

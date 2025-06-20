@@ -11,7 +11,7 @@ type PlaylistDeleteModalProps={
 }
 
   function PlaylistDeleteModal({playlistId}: PlaylistDeleteModalProps) {
-  const navigate = useNavigate();
+  
   const dispatch = useDispatch()
   const { closeModal } = useModal();
   function deletePlaylist(id: IPlaylistId){

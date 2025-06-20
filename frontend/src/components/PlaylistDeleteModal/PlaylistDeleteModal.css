@@ -1,7 +1,4 @@
-.playlist-delete-form{
-    display: flex;
-    flex-direction: column;
-}
+
 .playlist-delete-modal-div{
     text-align: center;
     padding: 3rem 2rem;
@@ -9,11 +6,7 @@
     border: solid white
 }
 
-.playlist-delete-form>input{
-    width: 100%;
-    box-sizing: border-box;
-    margin: 1rem 0
-}
+
 .playlist-delete-div>h1{
     font-size: 1.5rem;
     margin-top: .5rem;
