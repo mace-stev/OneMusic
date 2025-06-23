@@ -1,7 +1,11 @@
 import './SongUpdateModal.css'
+import { ISongId } from "../../redux/types/song";
 
 
-function SongUpdateModal(){
+type SongUpdateModalProps={
+  songId: ISongId
+}
+function SongUpdateModal({songId}: SongUpdateModalProps){
  return (
         <div className="song-update-modal-div">
         

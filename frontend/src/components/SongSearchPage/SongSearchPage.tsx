@@ -6,84 +6,96 @@ import { useDispatch, useSelector } from 'react-redux';
 import { thunkGetAllSongs } from "../../redux/song";
 import { useParams } from 'react-router-dom';
 import OpenModalMenuItem from "../Navigation/OpenModalMenuItem";
+import AddSongModal from "../AddSongModal";
+import ISong from "../../redux/types/song";
 
-function SongSearchPage(){
+function SongSearchPage() {
   const songs = useSelector((state: RootState) => state.song.allSongs);
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const [isLoaded, setIsLoaded] = useState(false);
-    const { id } = useParams()
-    
-    const [showMenu, setShowMenu] = useState(false);
-    const ulRef = useRef<any>();
-    const location=useLocation()
-    
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const location = useLocation();
 
-    const toggleMenu = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.stopPropagation(); // Keep from bubbling up to document and triggering closeMenu
-        setShowMenu(!showMenu);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Fix: Use a Record type to map song index to a boolean
+  const [showMenu, setShowMenu] = useState<Record<number, boolean>>({});
+  const ulRefs = useRef<Record<number, HTMLUListElement | null>>({});
+
+  const toggleMenu = (index: number, e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    setShowMenu(prev => ({
+      ...Object.fromEntries(Object.keys(prev).map(k => [Number(k), false])), // Close all other menus
+      [index]: !prev[index]
+    }));
+  };
+
+  const closeMenu = () => {
+    setShowMenu({});
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      for (const key in ulRefs.current) {
+        const ref = ulRefs.current[key];
+        if (ref && !ref.contains(e.target as Node)) {
+          closeMenu();
+          return;
+        }
+      }
     };
 
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
-    useEffect(() => {
-        if (!showMenu) return;
+  useEffect(() => {
+    const getSongs = async () => {
+      await dispatch(thunkGetAllSongs(location.state));
+      setIsLoaded(true);
+    };
+    if (!isLoaded) getSongs();
+  }, [dispatch, location.state, isLoaded]);
 
-        const closeMenu = (e: any) => {
-            if (ulRef.current && !ulRef.current.contains(e.target)) {
-                setShowMenu(false);
-            }
-        };
-
-        document.addEventListener("click", closeMenu);
-
-        return () => document.removeEventListener("click", closeMenu);
-    }, [showMenu]);
-
-    const closeMenu = () => setShowMenu(false);
-
-   useEffect(() => {
-        const getSongs = async () => {
-            dispatch(thunkGetAllSongs(location.state));
-            setIsLoaded(true);
-        };
-        if (!isLoaded) {
-            getSongs();
-        }
-    }, [dispatch, songs, isLoaded]);
-
-
-    return (<>
-        <div className="playlist-header">
-            <h1>Songs</h1>
-        </div>
-        <div className="playlist-container-div">
-            
-                {songs?.map((element, index) => {
-                    return <div key={index} className="song-container">
-                        <div className="playlist-song-image-container"><img src={element?.Image?.url} /></div>
-                        <div>
-                            <h3 className="playlist-song-title">{element.title}</h3>
-                            <h3 className="playlist-song-artist">{element.artist}</h3>
-
-                        </div>
-                        <button className="playlist-song-options-button" onClick={(e) => {
-                            e.stopPropagation()
-                             toggleMenu(e)}}>...</button>
-                        {showMenu && (
-                       <ul className="song-dropdown" ref={ulRef}>
-                                  <OpenModalMenuItem
-                                itemText="Add Song"
-                                onItemClick={closeMenu}
-                                modalComponent={{}}
-                            />
-                        </ul>
-                        )}
-                    </div>
-                })}
-            <div className="apps-linked-container"></div>
-        </div>
+  return (
+    <>
+      <div className="playlist-header">
+        <h1>Songs</h1>
+      </div>
+      <div className="playlist-container-div">
+        {songs?.map((element, index) => (
+          <div key={index} className="song-container">
+            <div className="playlist-song-image-container">
+              <img src={element?.Image?.url} alt="Song cover" />
+            </div>
+            <div>
+              <h3 className="playlist-song-title">{element.title}</h3>
+              <h3 className="playlist-song-artist">{element.artist}</h3>
+            </div>
+            <button
+              className="playlist-song-options-button"
+              onClick={(e) => toggleMenu(index, e)}
+            >
+              ...
+            </button>
+            {showMenu[index] && (
+              <ul
+                className="song-dropdown"
+                ref={(el) => (ulRefs.current[index] = el)}
+              >
+                <OpenModalMenuItem
+                  itemText="Add Song"
+                  onItemClick={closeMenu}
+                  modalComponent={<AddSongModal songId={element.id}/>}
+                />
+              </ul>
+            )}
+          </div>
+        ))}
+        <div className="apps-linked-container"></div>
+      </div>
     </>
-
-    )
+  );
 }
+
 export default SongSearchPage;

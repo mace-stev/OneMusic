@@ -1,11 +1,12 @@
 .song-container{
     display: flex;
     border: solid white 1px;
-    padding: .25rem
+    padding: .25rem;
+    position: relative;
 }
 .song-dropdown{
     position: absolute;
-    right: 24%;
+    right: -30%;
     background: white;
     height: 1.5rem;
     border-radius: 6px;
