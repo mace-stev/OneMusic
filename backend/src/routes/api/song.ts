@@ -78,7 +78,6 @@ router.post('/songs', async (req: AuthReq, res: Response, next: NextFunction) =>
         const {
             title,
             artist,
-            playlistId,
             previewId
         } = req.body
 
@@ -87,7 +86,6 @@ router.post('/songs', async (req: AuthReq, res: Response, next: NextFunction) =>
         const song = await Song.create({
             title,
             artist,
-            playlistId,
             previewId
         })
      
@@ -110,7 +108,6 @@ router.put('/songs/:id', async (req: AuthReq, res: Response, next: NextFunction)
         const {
             title,
             artist,
-            playlistId,
             previewId
         } = req.body
         const songId = req.params.id
@@ -119,7 +116,6 @@ router.put('/songs/:id', async (req: AuthReq, res: Response, next: NextFunction)
         const song = await Song.findOne({
             where: {
                 id: songId,
-                playlistId: playlistId
             }
         })
         if (!song) throw new NoResourceError("No song found with that id", 404);

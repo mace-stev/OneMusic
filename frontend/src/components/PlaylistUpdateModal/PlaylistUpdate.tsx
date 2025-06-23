@@ -39,7 +39,7 @@ function PlaylistUpdateModal({playlistId, previewId}: PlaylistModalAttributes){
                 <input className="playlist-update-input" placeholder='Playlist Image URL' value={playlistURL} onChange={(e)=>{
                     setPlaylistURL(e.target.value)
                 }}></input>
-                <button type="submit">Submit</button>
+                <button className="playlist-update-submit" type="submit">Submit</button>
         
                  
                   </form>

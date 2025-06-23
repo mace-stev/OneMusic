@@ -87,7 +87,7 @@ function PlaylistDetails() {
                             <OpenModalMenuItem
                                 itemText="Update Song"
                                 onItemClick={closeMenu}
-                                modalComponent={<SongUpdateModal songId={{id: element.id}} />}
+                                modalComponent={<SongUpdateModal songData={{id: element.id, previewId: element?.Image?.id}}  />}
                             />
                         </ul>
                         )}

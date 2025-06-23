@@ -46,7 +46,7 @@ function CreatePlaylistModal(){
         <input className="playlist-create-input" placeholder='Playlist Image URL' value={playlistURL} onChange={(e)=>{
             setPlaylistURL(e.target.value)
         }}></input>
-        <button type="submit">Submit</button>
+        <button type="submit" className="playlist-create-submit">Submit</button>
 
          
           </form>

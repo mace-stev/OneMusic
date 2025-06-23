@@ -72,7 +72,11 @@ function Home() {
     return (<>
         <div className="playlist-header">
             <h1>Playlists</h1>
-            <button>Merge</button>
+              <div className="playlist-button"><OpenModalMenuItem
+                    itemText="Merge"
+                    onItemClick={closeMenu}
+                    modalComponent={<CreatePlaylistModal />}
+                /></div>
             
 
                 <div className="playlist-button"><OpenModalMenuItem
