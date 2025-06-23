@@ -25,7 +25,8 @@ interface IModalClose {
 
 const ModalContext = createContext<IModalContextProps>({
   value: "",
-  updateValue: () => {}
+  updateValue: () => {},
+  
 });
 
 

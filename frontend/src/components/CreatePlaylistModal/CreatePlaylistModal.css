@@ -1,32 +1,32 @@
-.playlist-update-form{
+.playlist-create-form{
     display: flex;
     flex-direction: column;
 }
-.playlist-update-modal-div{
-     text-align: center;
+.playlist-create-modal-div{
+    text-align: center;
     padding: 3rem 2rem;
-    background-color: #1e1e1e;
+     background-color: #1e1e1e;
     color: white;
     border: solid 2px white
 }
 
-.playlist-update-form>input{
-   width: 100%;
+.playlist-create-form>input{
+    width: 100%;
     box-sizing: border-box;
     margin: 1rem 0;
     color: black;
     font-weight: 600
 }
-.playlist-update-div>h1{
+.playlist-create-modal-div>h1{
     font-size: 1.5rem;
     margin-top: .5rem;
 }
-.playlist-update-div>h2{
+.playlist-create-modal-div>h2{
     font-size: .9rem;
     margin-top: .5rem;
 }
-.playlist-update-submit{
-    background-color: #1e1e1e;
+.playlist-create-submit{
+     background-color: #1e1e1e;
     color: white;
     border: solid 2px white;
     padding: 1rem;

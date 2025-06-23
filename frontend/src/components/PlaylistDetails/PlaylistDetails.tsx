@@ -16,30 +16,35 @@ function PlaylistDetails() {
     const [isLoaded, setIsLoaded] = useState(false);
     const { id } = useParams()
     const playlistSongs = playlist[0]?.Songs
-    const [showMenu, setShowMenu] = useState(false);
-    const ulRef = useRef<any>();
+    const [showMenu, setShowMenu] = useState<Record<number, boolean>>({});
+  const ulRefs = useRef<Record<number, HTMLUListElement | null>>({});
 
-    const toggleMenu = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.stopPropagation(); // Keep from bubbling up to document and triggering closeMenu
-        setShowMenu(!showMenu);
+  const toggleMenu = (index: number, e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    setShowMenu(prev => ({
+      ...Object.fromEntries(Object.keys(prev).map(k => [Number(k), false])), // Close all other menus
+      [index]: !prev[index]
+    }));
+  };
+
+  const closeMenu = () => {
+    setShowMenu({});
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      for (const key in ulRefs.current) {
+        const ref = ulRefs.current[key];
+        if (ref && !ref.contains(e.target as Node)) {
+          closeMenu();
+          return;
+        }
+      }
     };
 
-
-    useEffect(() => {
-        if (!showMenu) return;
-
-        const closeMenu = (e: any) => {
-            if (ulRef.current && !ulRef.current.contains(e.target)) {
-                setShowMenu(false);
-            }
-        };
-
-        document.addEventListener("click", closeMenu);
-
-        return () => document.removeEventListener("click", closeMenu);
-    }, [showMenu]);
-
-    const closeMenu = () => setShowMenu(false);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
     useEffect(() => {
         const getPlaylists = async () => {
@@ -57,12 +62,12 @@ function PlaylistDetails() {
 
     return (<>
         <div className="playlist-header">
-            <h1>Songs</h1>
+            <h1>{playlist[0]?.name} Songs</h1>
         </div>
         <div className="playlist-container-div">
-            <div className="playlist-song-container">
+        
                 {playlistSongs?.map((element, index) => {
-                    return <div key={index} >
+                    return <div key={index} className="playlist-song-container">
                         <div className="playlist-song-image-container"><img src={element?.Image?.url} /></div>
                         <div>
                             <h3 className="playlist-song-title">{element.title}</h3>
@@ -71,9 +76,9 @@ function PlaylistDetails() {
                         </div>
                         <button className="playlist-song-options-button" onClick={(e) => {
                             e.stopPropagation()
-                             toggleMenu(e)}}>...</button>
-                        {showMenu && (
-                       <ul className={"playlist-song-dropdown"} ref={ulRef}>
+                             toggleMenu(index, e)}}>...</button>
+                        {showMenu[index] && (
+                       <ul className={"playlist-song-dropdown"} ref={(el) => (ulRefs.current[index] = el)}>
                             <OpenModalMenuItem
                                 itemText="Delete Song"
                                 onItemClick={closeMenu}
@@ -82,13 +87,13 @@ function PlaylistDetails() {
                             <OpenModalMenuItem
                                 itemText="Update Song"
                                 onItemClick={closeMenu}
-                                modalComponent={<SongUpdateModal  />}
+                                modalComponent={<SongUpdateModal songData={{id: element.id, previewId: element?.Image?.id}}  />}
                             />
                         </ul>
                         )}
                     </div>
                 })}
-            </div>
+        
             <div className="apps-linked-container"></div>
         </div>
     </>

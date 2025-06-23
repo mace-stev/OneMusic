@@ -6,6 +6,7 @@ import OpenModalMenuItem from "./OpenModalMenuItem";
 import LoginFormModal from "../LoginFormModal";
 import SignupFormModal from "../SignupFormModal";
 import { useAppSelector } from "../../redux/store";
+import { thunkGetAllPlaylists } from "../../redux/playlist";
 
 function ProfileButton():JSX.Element {
   const dispatch = useDispatch();
@@ -52,7 +53,10 @@ function ProfileButton():JSX.Element {
               <li>{user.username}</li>
               <li>{user.email}</li>
               <li>
-                <button onClick={(e) => logout(e)}>Log Out</button>
+                <button onClick={async(e) => {logout(e)
+
+                  dispatch(await thunkGetAllPlaylists())
+                }}>Log Out</button>
               </li>
             </>
           ) : (

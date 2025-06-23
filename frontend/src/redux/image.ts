@@ -100,10 +100,10 @@ export const thunkCreateImage =
 
 // Update a new Image
 export const thunkUpdateImage =
-    (ImageData: IImageForm, ImageId: number | string): any =>
+    (ImageData: IImage): any =>
     async (dispatch: any) => {
         try {
-            const response = await csrfFetch(`/api/images/${ImageId}`, {
+            const response = await csrfFetch(`/api/images/${ImageData.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ImageData),
