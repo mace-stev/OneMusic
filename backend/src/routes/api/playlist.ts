@@ -49,8 +49,10 @@ router.post('/playlist', async (req: AuthReq, res: Response, next: NextFunction)
 
 
         const playlist = await Playlist.create({
-            name,
-            previewId
+            name: name,
+            ownerId: req.user.id,
+            previewId: previewId
+            
         })
      
         res.status(200).json({

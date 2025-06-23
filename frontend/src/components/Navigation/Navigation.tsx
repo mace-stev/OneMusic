@@ -8,6 +8,7 @@ import SignupFormModal from '../SignupFormModal';
 import { CiSearch } from 'react-icons/ci';
 import { useState, useRef, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { thunkGetAllSongs } from '../../redux/song';
 
 
 
@@ -40,7 +41,8 @@ function Navigation(): JSX.Element {
         return () => document.removeEventListener('click', closeMenu);
     }, [showMenu]);
     function submitHandler(e: FormEvent) {
- 
+        dispatch(thunkGetAllSongs({title: title, artist: artist}))
+         navigate("/songs/search", { state:{title: title, artist: artist}})
     }
 
     return (

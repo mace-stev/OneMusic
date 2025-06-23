@@ -7,64 +7,82 @@ import { thunkGetAllPlaylists } from "../../redux/playlist";
 import PlaylistUpdateModal from "../PlaylistUpdateModal";
 import PlaylistDeleteModal from "../PlaylistDeleteModal";
 import OpenModalMenuItem from "../Navigation/OpenModalMenuItem";
-
+import CreatePlaylistModal from "../CreatePlaylistModal";
+import { thunkAuthenticate } from "../../redux/session";
+import { useModal } from '../../context/Modal';
+import SignupFormModal from "../SignupFormModal";
 function Home() {
     const playlists = useSelector((state: RootState) => state.playlist.allPlaylists);
+    const user = useSelector((state: RootState)=> state.session.user)
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [isLoaded, setIsLoaded] = useState(false);
+    const { setModalContent}=useModal()
 
+   const [showMenu, setShowMenu] = useState<Record<number, boolean>>({});
+  const ulRefs = useRef<Record<number, HTMLUListElement | null>>({});
 
-    const [showMenu, setShowMenu] = useState(false);
-    
-    const ulRef = useRef<any>();
+  const toggleMenu = (index: number, e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    setShowMenu(prev => ({
+      ...Object.fromEntries(Object.keys(prev).map(k => [Number(k), false])), // Close all other menus
+      [index]: !prev[index]
+    }));
+  };
 
-    const toggleMenu = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.stopPropagation(); // Keep from bubbling up to document and triggering closeMenu
-        setShowMenu(!showMenu);
+  const closeMenu = () => {
+    setShowMenu({});
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      for (const key in ulRefs.current) {
+        const ref = ulRefs.current[key];
+        if (ref && !ref.contains(e.target as Node)) {
+          closeMenu();
+          return;
+        }
+      }
     };
-   
 
-
-    useEffect(() => {
-        if (!showMenu) return;
-
-        const closeMenu = (e: any) => {
-            if (ulRef.current && !ulRef.current.contains(e.target)) {
-                setShowMenu(false);
-            }
-        };
-
-        document.addEventListener("click", closeMenu);
-
-        return () => document.removeEventListener("click", closeMenu);
-    }, [showMenu]);
-
-    
-
-    const closeMenu = () => setShowMenu(false);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
     useEffect(() => {
+        if(user){
         const getPlaylists = async () => {
             dispatch(thunkGetAllPlaylists());
             setIsLoaded(true);
+            
         };
         if (!isLoaded) {
             getPlaylists();
         }
+    }
+
     }, [dispatch, playlists.length, isLoaded]);
-    console.log(playlists)
+
+    useEffect(()=>{
+        if(!user){
+            setModalContent(<SignupFormModal/>)
+        }
+    },[user])
 
     return (<>
         <div className="playlist-header">
             <h1>Playlists</h1>
-            <button>Merge</button>
+              <div className="playlist-button"><OpenModalMenuItem
+                    itemText="Merge"
+                    onItemClick={closeMenu}
+                    modalComponent={<CreatePlaylistModal />}
+                /></div>
             
 
                 <div className="playlist-button"><OpenModalMenuItem
                     itemText="create"
                     onItemClick={closeMenu}
-                    modalComponent={<PlaylistUpdateModal />}
+                    modalComponent={<CreatePlaylistModal />}
                 /></div>
 
             <button>transfer</button>
@@ -79,9 +97,9 @@ function Home() {
                     <div onClick={(e) => {
                         navigate(`/playlist/${element.id}`);
                     }}><h3 className="playlist-name">{element.name}</h3></div>
-                    <button className="playlist-options-button" onClick={(e) => toggleMenu(e)}>...</button>
-                    {showMenu && (
-                        <ul className={"playlist-dropdown"} ref={ulRef}>
+                    <button className="playlist-options-button" onClick={(e) =>  toggleMenu(index, e)}>...</button>
+                    {showMenu[index]  && (
+                        <ul className={"playlist-dropdown"}  ref={(el) => (ulRefs.current[index] = el)}>
                             <OpenModalMenuItem
                                 itemText="Delete Playlist"
                                 onItemClick={closeMenu}
@@ -90,7 +108,7 @@ function Home() {
                             <OpenModalMenuItem
                                 itemText="Update Playlist"
                                 onItemClick={closeMenu}
-                                modalComponent={<PlaylistUpdateModal />}
+                                modalComponent={<PlaylistUpdateModal playlistId={element.id} previewId={element.previewId}/>}
                             />
                         </ul>
                     )}

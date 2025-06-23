@@ -1,26 +1,51 @@
-.sign-up-form{
+.sign-up-form {
     display: flex;
     flex-direction: column;
 }
-.sign-up-modal-div{
+
+.sign-up-modal-div {
     text-align: center;
     padding: 3rem 2rem;
+    background-color: #1e1e1e;
+    color: white;
+    border: solid 2px white
 }
-.profile-pic{
+
+.profile-pic {
     width: 3rem;
     height: 3rem;
-    
+
 }
-.sign-up-form>input{
+
+.signup-submit {
+    background-color: #1e1e1e;
+    color: white;
+    border: solid 2px white;
+    padding: 1rem;
+}
+
+.sign-up-form>input {
     width: 100%;
     box-sizing: border-box;
-    margin: 1rem 0
+    margin: 1rem 0;
+    color: black;
+    font-weight: 600
 }
-.sign-up-modal-div>h1{
+
+.sign-up-modal-div>h1 {
     font-size: 1.5rem;
     margin-top: .5rem;
 }
-.sign-up-modal-div>h2{
+
+.sign-up-modal-div>h2 {
     font-size: .9rem;
     margin-top: .5rem;
+}
+.signup-button{
+     background-color: #1e1e1e;
+    color: white;
+    border: solid 2px white;
+    padding: 1rem;
+    width:fit-content;
+    margin: auto
 }

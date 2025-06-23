@@ -1,0 +1,25 @@
+.song-container{
+    display: flex;
+    border: solid white 1px;
+    padding: .25rem;
+    position: relative;
+}
+.song-dropdown{
+    position: absolute;
+    right: -30%;
+    background: white;
+    height: 1.5rem;
+    border-radius: 6px;
+    box-shadow: 0px 6px 6px rgba(0, 0, 0, 0.1);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: .5rem;
+    text-align: left;
+    white-space: nowrap;
+    color: rgb(95, 91, 91);
+    list-style: none;
+    border: solid black;
+    text-align:center;
+}

@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
 import { thunkSignup } from '../../redux/session';
 import { FaUserCircle } from 'react-icons/fa';
+import LoginFormModal from '../LoginFormModal';
 import './SignupForm.css';
 
 interface ISignUpErrors {
@@ -17,6 +18,7 @@ interface ISignUpErrors {
 
 function SignupFormModal() {
   const dispatch = useDispatch();
+  const { setModalContent}=useModal()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('');
@@ -65,6 +67,11 @@ function SignupFormModal() {
       <FaUserCircle style={{ color: '#7d7a85' }} className="profile-pic" />
     
       <form onSubmit={handleSubmit} className="sign-up-form">
+        <h1>Welcome To OneMusic</h1>
+        <h3>The service that lets you transfer all of your playlists across streaming services.</h3>
+        <button className="signup-button"onClick={(e)=>{
+          setModalContent(<LoginFormModal/>)
+        }}>Already a user?</button>
         <input
           type="text"
           value={firstName}
@@ -114,7 +121,7 @@ function SignupFormModal() {
           required
         />
         {errors.confirmPassword && <p>{errors.confirmPassword}</p>}
-        <button type="submit">Sign Up</button>
+        <button className="signup-submit" type="submit">Sign Up</button>
       </form>
     </div>
   );

@@ -6,12 +6,16 @@ export interface ISong {
     playlistId: number;
     artist: string;
     previewId?: string | null;
+    Image:{
+            id: number;
+            url: string;
+        }
     
 }
 
 export interface ISongForm {
-    name: string;
-    previewId?: number | null
+    id: number;
+    previewId: number | undefined;
 }
 
 export interface ISongId {
