@@ -1,4 +1,4 @@
-# Typescript Skeleton (change name)
+# OneMusic
 
 ## Navigation
 ## Overview
