@@ -59,7 +59,9 @@ function Home() {
         if (!isLoaded) {
             getPlaylists();
         }
+       
     }
+     thunkGetAllPlaylists()
 
     }, [dispatch, playlists.length, isLoaded]);
 
