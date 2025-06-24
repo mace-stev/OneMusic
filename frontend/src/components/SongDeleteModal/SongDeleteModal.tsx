@@ -18,8 +18,8 @@ function SongDeleteModal({songId}: SongDeleteModalProps){
     const { closeModal } = useModal();
     const {id}=useParams()
     songId['playlistId']=Number(id)
-    function deleteSong(songId: ISongId){
-      dispatch(thunkRemoveSong(songId))
+    async function deleteSong(songId: ISongId){
+      dispatch(await thunkRemoveSong(songId))
       if(id){
       dispatch(thunkGetOnePlaylist(id))
       closeModal()
