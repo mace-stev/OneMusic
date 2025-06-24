@@ -21,7 +21,7 @@ function SongDeleteModal({songId}: SongDeleteModalProps){
     async function deleteSong(songId: ISongId){
       dispatch(await thunkRemoveSong(songId))
       if(id){
-      dispatch(thunkGetOnePlaylist(id))
+      dispatch(await thunkGetOnePlaylist(id))
       closeModal()
       }
     }

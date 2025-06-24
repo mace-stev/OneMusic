@@ -49,7 +49,7 @@ function PlaylistDetails() {
     useEffect(() => {
         const getPlaylists = async () => {
             if (id) {
-                dispatch(thunkGetOnePlaylist(id));
+                dispatch(await thunkGetOnePlaylist(id));
                 setIsLoaded(true);
             }
         };
@@ -57,7 +57,7 @@ function PlaylistDetails() {
             getPlaylists();
         }
     }, [dispatch, id]);
-    console.log(playlist)
+    
 
 
     return (<>
