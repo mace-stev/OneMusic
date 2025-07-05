@@ -10,7 +10,10 @@ body {
     fill: white;
    
 }
-
+.search-bar-form{
+    position: absolute;
+    right: 32.75%
+}
 
 
 

@@ -14,9 +14,9 @@ type PlaylistDeleteModalProps={
   
   const dispatch = useDispatch()
   const { closeModal } = useModal();
-  function deletePlaylist(id: IPlaylistId){
-    dispatch(thunkRemovePlaylist(id))
-    dispatch(thunkGetAllPlaylists())
+  async function deletePlaylist(id: IPlaylistId){
+   await dispatch(await thunkRemovePlaylist(id))
+    await dispatch(await thunkGetAllPlaylists())
     closeModal()
   }
 
