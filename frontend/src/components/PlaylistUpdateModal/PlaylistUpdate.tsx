@@ -19,9 +19,9 @@ function PlaylistUpdateModal({playlistId, previewId}: PlaylistModalAttributes){
 
            async function onSubmit(event: FormEvent){
                 event.preventDefault()
-               await dispatch(thunkUpdateImage({id: previewId, url: playlistURL}))
-               dispatch(thunkUpdatePlaylist({id: playlistId, name: playlistName, previewId: previewId}))
-                    dispatch(thunkGetAllPlaylists())
+                dispatch(await thunkUpdateImage({id: previewId, url: playlistURL}))
+               dispatch(await thunkUpdatePlaylist({id: playlistId, name: playlistName, previewId: previewId}))
+                    dispatch(await thunkGetAllPlaylists())
         
                     closeModal()
         

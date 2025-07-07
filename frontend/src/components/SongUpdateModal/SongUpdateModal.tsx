@@ -23,8 +23,8 @@ function SongUpdateModal({songData, playlistId}: SongUpdateModalProps){
            async function onSubmit(event: FormEvent){
                 event.preventDefault()
                 if(songData.previewId){
-               await dispatch(thunkUpdateImage({id: songData.previewId, url: songURL}))
-                    dispatch(thunkGetOnePlaylist((playlistId.id).toString()))
+                await dispatch(await thunkUpdateImage({id: songData.previewId, url: songURL}))
+                    await dispatch(await thunkGetOnePlaylist((playlistId.id).toString()))
         
                     closeModal()
                 }

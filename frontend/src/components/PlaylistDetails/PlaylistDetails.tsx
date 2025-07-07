@@ -49,7 +49,7 @@ function PlaylistDetails() {
     useEffect(() => {
         const getPlaylists = async () => {
             if (id) {
-                dispatch(thunkGetOnePlaylist(id));
+                dispatch(await thunkGetOnePlaylist(id));
                 setIsLoaded(true);
             }
         };
@@ -57,7 +57,7 @@ function PlaylistDetails() {
             getPlaylists();
         }
     }, [dispatch, id]);
-    console.log(playlist)
+    
 
 
     return (<>
@@ -74,6 +74,7 @@ function PlaylistDetails() {
                             <h3 className="playlist-song-artist">{element.artist}</h3>
 
                         </div>
+                
                         <button className="playlist-song-options-button" onClick={(e) => {
                             e.stopPropagation()
                              toggleMenu(index, e)}}>...</button>
@@ -87,7 +88,9 @@ function PlaylistDetails() {
                             <OpenModalMenuItem
                                 itemText="Update Song"
                                 onItemClick={closeMenu}
-                                modalComponent={<SongUpdateModal songData={{id: element.id, previewId: element?.Image?.id}}  />}
+                                modalComponent={<SongUpdateModal playlistId={{id: playlist[0].id}} songData={{id: element.id, 
+                                  
+                                  previewId: element.Image?.id}}  />}
                             />
                         </ul>
                         )}
