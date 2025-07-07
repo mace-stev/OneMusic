@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { useModal } from '../../context/Modal';
 import { thunkCreateImage } from "../../redux/image";
 import { thunkCreateSong } from "../../redux/song";
+import { IImage } from "../../redux/types/image";
 type OAuthParams = {
   client_id?: string;
   redirect_uri?: string;
@@ -87,17 +88,6 @@ type cleanYoutubePlaylists = {
     };
   }
 }
-function TransferModal() {
-  const [store, setStore] = useState<OAuthParams>(JSON.parse(localStorage.getItem('oauth2-test-params') || '{}'));
-  const [playlists, setPlaylists] = useState<cleanYoutubePlaylists[]>()
-  const [playlistName, setPlaylistName] = useState<string>("")
-  const [playlistURL, setPlaylistURL] = useState<string>("")
-  const [playlistId, setPlaylistId] = useState<string>("")
-  const [nextPageToken, setNextPageToken] = useState<string>("")
-  const [imageId, setImageId] = useState<number>()
-  const [songs, setSongs] = useState<FilteredYoutubeSong[]>([])
-  const dispatch = useDispatch()
-  const { closeModal } = useModal()
   type FilteredYoutubeSong = {
     id: string;
     description: string;
@@ -109,97 +99,149 @@ function TransferModal() {
       }
     },
     title: string;
-    videoOwnerChannelTitle: string
+    videoOwnerChannelTitle: string;
+    imageId: string;
+  }
+function TransferModal() {
+  const [store, setStore] = useState<OAuthParams>(JSON.parse(localStorage.getItem('oauth2-test-params') || '{}'));
+  const [playlists, setPlaylists] = useState<cleanYoutubePlaylists[]>()
+  const [playlistName, setPlaylistName] = useState<string>("")
+  const [playlistURL, setPlaylistURL] = useState<string>("")
+  const [playlistId, setPlaylistId] = useState<string>("")
+  const [nextPageToken, setNextPageToken] = useState<string>("")
+  const [imageId, setImageId] = useState<number>()
+  const [songs, setSongs] = useState<FilteredYoutubeSong[]>([])
+  const [createdPlaylistId, setCreatedPlaylistId]=useState<number>()
+  const dispatch = useDispatch()
+  const { closeModal } = useModal()
+
+///////////////On form submit, a user's playlist and all of that playlists items is fetched and the data is then organized.
+  async function onSubmit(event: FormEvent) {
+  event.preventDefault();
+
+  if (playlistURL === "") {
+    const undefinedImageUrl =
+      "https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg";
+    const imageResponse = await dispatch(thunkCreateImage({ url: undefinedImageUrl }));
+    setImageId(imageResponse.id);
+    return;
   }
 
-  async function onSubmit(event: FormEvent) {
-    event.preventDefault()
-    //   if(playlistURL===""){
-    //       const undefinedImageUrl="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg"
-    //       const imageResponse= await dispatch(thunkCreateImage({url: undefinedImageUrl}))
-    //      setImageId(imageResponse.id)
-    //       return
+  const imageResponse = await dispatch(thunkCreateImage({ url: playlistURL }));
+  setImageId(imageResponse.id);
 
+  try {
+    const songArray: FilteredYoutubeSong[] = [];
 
-    //   }
-    //  const imageResponse= await dispatch(thunkCreateImage({url: playlistURL}))
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50`,
+      {
+        headers: {
+          Authorization: `Bearer ${store.access_token}`,
+          Accept: "application/json",
+        },
+      }
+    );
 
-    //  setImageId(imageResponse.id)
-    try {
-      const songArray: FilteredYoutubeSong[] = []
-      const res = await fetch(
-        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50`,
+    const pageData = await res.json();
+
+ for (const element of pageData.items as YoutubeVideos[]) {
+        const songImage = await new Promise<{ id: string }>((resolve, reject) => {
+          dispatch(thunkCreateImage({ url: element.snippet.thumbnails.default?.url }))
+            .then((img: IImage) => {
+              if (img?.id) resolve({id: img.id.toString()});
+              else reject(new Error("Image ID is undefined"));
+            })
+            .catch(reject);
+        });
+
+        songArray.push({
+          id: element.id,
+          description: element.snippet.description,
+          thumbnails: {
+            default: {
+              url: element.snippet.thumbnails.default?.url,
+              width: element.snippet.thumbnails.default?.width,
+              height: element.snippet.thumbnails.default?.height,
+            },
+          },
+          title: element.snippet.title,
+          videoOwnerChannelTitle: element.snippet.videoOwnerChannelTitle,
+          imageId: songImage.id,
+        });
+      }
+
+    let token = pageData.nextPageToken;
+
+    while (token) {
+      const result = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&pageToken=${token}`,
         {
           headers: {
             Authorization: `Bearer ${store.access_token}`,
             Accept: "application/json",
           },
         }
-      )
-      const data = await res.json()
-      data.items.forEach((element: YoutubeVideos)=>{
-      songArray.push({
-        id: element.id,
-        description: element.snippet.description,
-        thumbnails: {
-          default: {
-            url: element.snippet.thumbnails.default?.url,
-            width: element.snippet.thumbnails.default?.width,
-            height: element.snippet.thumbnails.default?.height
-          }
-        },
-        title: element.snippet.title,
-        videoOwnerChannelTitle: element.snippet.videoOwnerChannelTitle
-      })
-    })
-      let token = data.nextPageToken
+      );
 
-      while (token) {
-        const result = await fetch(
-          `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&pageToken=${token}`,
-          {
-            headers: {
-              Authorization: `Bearer ${store.access_token}`,
-              Accept: "application/json",
+      const pageData = await result.json();
+
+      for (const element of pageData.items as YoutubeVideos[]) {
+        const songImage = await new Promise<{ id: string }>((resolve, reject) => {
+          dispatch(thunkCreateImage({ url: element.snippet.thumbnails.default?.url }))
+            .then((img: IImage) => {
+              if (img?.id) resolve({id: img.id.toString()});
+              else reject(new Error("Image ID is undefined"));
+            })
+            .catch(reject);
+        });
+
+        songArray.push({
+          id: element.id,
+          description: element.snippet.description,
+          thumbnails: {
+            default: {
+              url: element.snippet.thumbnails.default?.url,
+              width: element.snippet.thumbnails.default?.width,
+              height: element.snippet.thumbnails.default?.height,
             },
-          }
-        )
-        const data = await result.json()
-        data.items.forEach((element: YoutubeVideos)=>{
-      songArray.push({
-        id: element.id,
-        description: element.snippet.description,
-        thumbnails: {
-          default: {
-            url: element.snippet.thumbnails.default?.url,
-            width: element.snippet.thumbnails.default?.width,
-            height: element.snippet.thumbnails.default?.height
-          }
-        },
-        title: element.snippet.title,
-        videoOwnerChannelTitle: element.snippet.videoOwnerChannelTitle
-      })
-    })
-        token = data.nextPageToken
+          },
+          title: element.snippet.title,
+          videoOwnerChannelTitle: element.snippet.videoOwnerChannelTitle,
+          imageId: songImage.id,
+        });
       }
-      setSongs(songArray)
-      console.log(songArray)
 
+      token = pageData.nextPageToken;
     }
-    catch (error) {
-      console.log(error)
+
+    setSongs(songArray);
+    console.log(songArray);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+  /////////useEffect that creates a playlist and adds songs to the database after its preview image is created   
+  useEffect(() => {
+    
+    async function createPlaylistAndSongs(){
+    if (imageId !== undefined) {
+      const playlist=  await dispatch(thunkCreatePlaylist({ name: playlistName, previewId: imageId }))
+      setCreatedPlaylistId(playlist.id)
     }
 
   }
-  /////////useEffect that creates a playlist after its preview image is created   
-  useEffect(() => {
-    console.log(imageId)
-    if (imageId !== undefined) {
-      dispatch(thunkCreatePlaylist({ name: playlistName, previewId: imageId }))
-      dispatch(thunkGetAllPlaylists())
-      closeModal()
-    }
+  createPlaylistAndSongs()
   }, [imageId])
+
+  useEffect(()=>{
+    async function addSongsToPlaylists(){
+      if(createdPlaylistId!==undefined){
+
+      }
+    }
+  },[createdPlaylistId])
 
   /////////////////////////
   ///////////useEffect that fetches the user's playlists///////
