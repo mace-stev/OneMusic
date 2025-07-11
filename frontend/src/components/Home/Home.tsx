@@ -47,26 +47,27 @@ function Home() {
   const [store, setStore] = useState<OAuthParams>(JSON.parse(localStorage.getItem('oauth2-test-params') || '{}'));
   const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
-    const fragmentString = window.location.hash.substring(1);
-    const updatedParams: OAuthParams = { ...params };
+useEffect(() => {
+  const hash = window.location.hash.substring(1);
+  if (!hash) return;
+  const updated: OAuthParams = { ...params };
+  new URLSearchParams(hash).forEach((val, key) => {
+    (updated as any)[key] = val;
+  });
 
-    const regex = /([^&=]+)=([^&]*)/g;
-    let m: RegExpExecArray | null;
+  setParams(updated);
+  setStore(updated);
+  localStorage.setItem("oauth2-test-params", JSON.stringify(updated));
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname + window.location.search
+  );
+  if (updated.state === "try_sample_request") {
+    trySampleRequest(updated);
+  }
+}, []);
 
-    while ((m = regex.exec(fragmentString))) {
-      updatedParams[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-    }
-
-    if (Object.keys(updatedParams).length > 0 && !store.access_token) {
-      localStorage.setItem('oauth2-test-params', JSON.stringify(updatedParams));
-      setParams(updatedParams);
-      
-      if (updatedParams.state === 'try_sample_request') {
-        trySampleRequest(updatedParams);
-      }
-    }
-  }, []);
 
   async function trySampleRequest(currentParams: OAuthParams) {
     const localParams: OAuthParams = JSON.parse(localStorage.getItem('oauth2-test-params') || '{}');

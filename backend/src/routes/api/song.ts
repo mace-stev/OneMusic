@@ -81,8 +81,13 @@ router.post('/songs', async (req: AuthReq, res: Response, next: NextFunction) =>
             previewId
         } = req.body
 
-
-
+        const previousSong= await Song.findOne({
+            where:{
+                title: title,
+                artist: artist
+            }
+        })
+        if(!previousSong){
         const song = await Song.create({
             title,
             artist,
@@ -95,7 +100,15 @@ router.post('/songs', async (req: AuthReq, res: Response, next: NextFunction) =>
             artist: artist,
             previewId: previewId
         })
-
+    }
+    else if(previousSong){
+        res.status(200).json({
+            id: previousSong.id,
+            title: title,
+            artist: artist,
+            previewId: previewId
+        })
+    }
 
     } catch (error) {
         next(error);

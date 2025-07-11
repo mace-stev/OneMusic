@@ -14,13 +14,15 @@ export interface ISong {
 }
 
 export interface ISongForm {
-    id: number;
+    title: string;
+    artist: string;
     previewId: number | undefined;
 }
 
 export interface ISongId {
-    id: number
-    playlistId?: number
+    id: number;
+    playlistId?: number;
+
 }
 
 export interface SongState {
