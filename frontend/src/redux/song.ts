@@ -108,7 +108,7 @@ export const thunkCreateSong =
 
 // Update a new Song
 export const thunkUpdateSong =
-    (songData: ISongId): any =>
+    (songData: ISong): any =>
     async (dispatch: any) => {
         try {
             const response = await csrfFetch(`/api/songs/${songData.id}`, {

@@ -72,7 +72,7 @@ function TransferModal() {
         });
 
         songArray.push({
-          id: element.id,
+          ytId: element.id,
           description: element.snippet.description,
           thumbnails: {
             default: {
@@ -117,7 +117,7 @@ function TransferModal() {
           });
 
           songArray.push({
-            id: element.id,
+            ytId: element.id,
             description: element.snippet.description,
             thumbnails: {
               default: {
@@ -136,6 +136,7 @@ function TransferModal() {
       }
       const newSongs = processYoutubeSongs(songArray)
       setSongs(newSongs);
+      setOnSubmitIsDone(true)
 
     } catch (error) {
       console.log(error);
@@ -146,67 +147,76 @@ function TransferModal() {
 
   /////////useEffect that creates a playlist and adds songs to the database after its preview image is created   
   useEffect(() => {
-
-    async function createPlaylistAndSongs() {
-      if (imageId !== undefined) {
-        const playlist = await dispatch(thunkCreatePlaylist({ name: playlistName, previewId: imageId }))
-        setCreatedPlaylistId(playlist.id)
+  async function createPlaylistAndSongs() {
+    const copy = songs.filter((element)=>{
+      if(element.title !== "Deleted video" && element.songArtist!=='' && element.songTitle!==''){
+        return element
       }
-      let copy = songs
-      copy.forEach(async (element) => {
+    })
+    for (const element of copy) {
+      if (element.title !== "Deleted video" && element.songArtist!=='' && element.songTitle!=='') {
         const song = await new Promise<{ id: string }>((resolve, reject) => {
-          dispatch(thunkCreateSong({ title: element.songTitle, artist: element.songArtist, previewId: Number(element.imageId) }))
-            .then((song: ISong) => {
-              if (song?.id) resolve({ id: song.id.toString() });
+          dispatch(
+            thunkCreateSong({
+              title: element.songTitle,
+              artist: element.songArtist,
+              previewId: Number(element.imageId),
+            })
+          )
+            .then((created: ISong) => {
+              if (created?.id) resolve({ id: created.id.toString() });
               else reject(new Error("Song ID is undefined"));
             })
             .catch(reject);
         });
-        element.id = song.id
-      })
-      setSongs(copy)
+        element.id = song.id;
+
+        if (
+          element.ytId === copy[copy.length - 1].ytId &&
+          imageId !== undefined
+        ) {
+          const playlist = await dispatch(
+            thunkCreatePlaylist({ name: playlistName, previewId: imageId })
+          );
+          setCreatedPlaylistId(playlist.id);
+        }
+      }
     }
-    if (onSubmitIsDone === true) {
-      createPlaylistAndSongs()
-    }
-  }, [onSubmitIsDone])
+
+    setSongs(copy);
+  }
+
+  if (onSubmitIsDone===true) {
+    createPlaylistAndSongs();
+  }
+}, [onSubmitIsDone, dispatch]);
+
 
   useEffect(() => {
-    
-      if (createdPlaylistId !== undefined) {
-        songs.forEach(async(element)=>{
-          try {
-                          let songData={
-                              songId: element.id
-                          }
-                                  const response = await csrfFetch(`/api/playlist/${element}`, {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify(songData),
-                                    
-                                  });
-                                  if (response.ok) {
-                                      const data = await response.json();
-                                      if(element.id===songs[songs.length-1].id){
-                                         closeModal()
-                                      }
-                                      
-                                      return data;
-                                  } else {
-                                      throw response;
-                                  }
-                              } catch (e) {
-                                  const err = e as Response;
-                                  const errorMessages = await err.json();
-                                  return errorMessages;
-                              }
-        })
+  async function addSongsToPlaylist() {
+    if (!createdPlaylistId) return;
+
+    for (const element of songs) {
+      const response = await csrfFetch(
+        `/api/playlist/${createdPlaylistId}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ songId: element?.id }),
+        }
+      );
+      if (!response.ok) {
+        const err = await response.json();
+        console.error('Failed to add song', element.id, err);
       }
-    
+    }
 
-  
-  }, [createdPlaylistId])
+ 
+    closeModal();
+  }
 
+  addSongsToPlaylist();
+}, [createdPlaylistId]);
   /////////////////////////
   ///////////useEffect that fetches the user's playlists///////
   useEffect(() => {
@@ -229,7 +239,7 @@ function TransferModal() {
 
         const data = await res.json();
         const cleaned: cleanYoutubePlaylists[] = []
-        data.items.forEach((element: YoutubePlaylists) => {
+        for(const element of data.items){
           const obj = {
             id: element.id,
             snippet: {
@@ -254,7 +264,7 @@ function TransferModal() {
           }
 
           cleaned.push(obj)
-        })
+        }
 
         setPlaylists(cleaned);
       } catch (err) {
@@ -272,10 +282,12 @@ function TransferModal() {
       <form className="playlist-transfer-form" onSubmit={(e) => {
         e.preventDefault()
         onSubmit(e)
-      }}>
+      }}> {youtubeClicked === false && (
         <button type="button" onClick={() => {
           setYoutubeClicked(true)
         }}>Transfer From Youtube?</button>
+      )}
+
         {playlists?.map((element) => {
           return (
             <div key={element.id}><label htmlFor={element.snippet.title}>{element.snippet.title}</label><input className="playlist-transfer-input" type="radio" value={element.id} name="playlistId" onChange={(e) => {

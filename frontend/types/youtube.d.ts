@@ -80,7 +80,8 @@ export type cleanYoutubePlaylists = {
   }
 }
  export type FilteredYoutubeSong = {
-    id: string;
+    id?: string | undefined;
+    ytId: string;
     description: string;
     thumbnails: {
       default: {
@@ -95,7 +96,8 @@ export type cleanYoutubePlaylists = {
 
   }
   export type UpdatedFilteredYoutubeSong={
-    id: string;
+    id?: string | undefined;
+    ytId: string;
     description: string;
     thumbnails: {
       default: {

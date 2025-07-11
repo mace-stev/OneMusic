@@ -3,16 +3,20 @@ body {
 }
 .profile-dropdown {
     position: absolute;
+    z-index: 500;
 }
 .OneMusic-logo {
     width: 2.5rem;
     height: 2.5rem;
     fill: white;
+    z-index: 500;
    
 }
 .search-bar-form{
     position: absolute;
-    right: 32.75%
+    right: 32.75%;
+    z-index: 500;
+
 }
 
 
@@ -57,6 +61,7 @@ body {
     align-items: center;
     gap: 5px;
     border: solid white;
+    
 }
 
 .nav-bar {
@@ -67,6 +72,7 @@ body {
     padding: 10px 60px;
     border-bottom: 1.5px solid white;
     height: 5rem;
+    z-index: 500;
 }
 .OneMusic-title{
     color: white;

@@ -15,6 +15,7 @@
     margin: auto .5rem;
 }
 
+
 .playlist-options-button {
     background: #1e1e1e;
     color: white;
@@ -83,7 +84,8 @@
 
 #root {
 
-    height: 200rem;
+    height: 1000rem;
+    overflow: auto;
     width: 100%;
     background-color: #1e1e1e;
     color: white

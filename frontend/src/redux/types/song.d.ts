@@ -3,10 +3,9 @@
 export interface ISong {
     id: number;
     title: string;
-    playlistId: number;
     artist: string;
     previewId?: string | null;
-    Image:{
+    Image?:{
             id: number;
             url: string;
         }
