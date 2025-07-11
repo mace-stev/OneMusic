@@ -35,7 +35,17 @@ router.post('/images', async (req: AuthReq, res: Response, next: NextFunction) =
         } = req.body
 
 
-
+        const oldImage= await Image.findOne({
+            where:{
+                url: url
+            }
+        })
+        if(oldImage){
+              res.status(200).json({
+            id: oldImage.id,
+            url: url
+        })
+        }
         const image = await Image.create({
             url
         })
