@@ -14,19 +14,12 @@ import SignupFormModal from "../SignupFormModal";
 import youtube from "../../yt_logo_mono_dark.png";
 import bcrypt from "bcryptjs";
 import TransferModal from "../TransferModal";
+import { OAuthParams } from "../../../types/youtube";
+import {createOAuthForm, oauth2SignIn} from "../../../utils/YTAuth"
 
 
 
-type OAuthParams = {
-  client_id?: string;
-  redirect_uri?: string;
-  response_type?: string;
-  scope?: string;
-  include_granted_scopes?: string;
-  state?: string;
-  access_token?: string;
-  [key: string]: string | undefined;
-};
+
 
 function Home() {
   const playlists = useSelector((state: RootState) => state.playlist.allPlaylists);
@@ -48,15 +41,17 @@ function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
 
 useEffect(() => {
+  console.log(params)
   const hash = window.location.hash.substring(1);
   if (!hash) return;
-  const updated: OAuthParams = { ...params };
+  const updated: OAuthParams = { ...store };
   new URLSearchParams(hash).forEach((val, key) => {
     (updated as any)[key] = val;
   });
 
   setParams(updated);
   setStore(updated);
+  console.log(updated)
   localStorage.setItem("oauth2-test-params", JSON.stringify(updated));
   window.history.replaceState(
     {},
@@ -64,65 +59,57 @@ useEffect(() => {
     window.location.pathname + window.location.search
   );
   if (updated.state === "try_sample_request") {
-    trySampleRequest(updated);
+    trySampleRequest();
   }
 }, []);
 
 
-  async function trySampleRequest(currentParams: OAuthParams) {
-    const localParams: OAuthParams = JSON.parse(localStorage.getItem('oauth2-test-params') || '{}');
-    setParams(localParams);
-    setStore(localParams);
+async function trySampleRequest() {
+  const localParams: OAuthParams =
+    JSON.parse(localStorage.getItem('oauth2-test-params') || '{}');
 
-    const stateIsValid = await verifyState(localParams.state || '');
+  setParams(localParams);
+  setStore(localParams);
 
-    if (localParams.access_token && stateIsValid) {
-      const xhr = new XMLHttpRequest();
-      xhr.open(
-        'POST',
-        `https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true&access_token=${localParams.access_token}`
-      );
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          console.log(xhr.response);
-        } else if (xhr.readyState === 4 && xhr.status === 401) {
-          const form = createOAuthForm();
-          oauth2SignIn(form);
-        }
-      };
-      xhr.send(null);
-    } else {
-      const form = createOAuthForm();
-      console.log(store)
-      oauth2SignIn(form);
-    }
-  }
-  function createOAuthForm(): HTMLFormElement {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = oauth2Endpoint;
-    form.onSubmit((e: FormEvent)=>{
-      e.preventDefault()
-    })
-    return form;
-  }
-
-  function oauth2SignIn(form: HTMLFormElement) {
-    for (const p in params) {
-      if (params.hasOwnProperty(p)) {
-        const input = document.createElement('input');
-        input.setAttribute('type', 'hidden');
-        input.setAttribute('name', p);
-        input.setAttribute('value', params[p] || '');
-        form.appendChild(input);
-      }
-    }
-   
-    document.body.appendChild(form);
-    
   
-    form.submit();
+  const stateIsValid = await verifyState(localParams.state || '');
+
+ 
+  if (localParams.access_token && stateIsValid) {
+    const xhr = new XMLHttpRequest();
+    xhr.open(
+      'POST',
+      `https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true&access_token=${localParams.access_token}`
+    );
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState !== 4) return;
+
+      if (xhr.status === 200) {
+        console.log(xhr.response);
+      } 
+      else if (xhr.status === 401) {
+     
+        localStorage.removeItem('oauth2-test-params');
+        setParams(initialParams);
+        setStore(initialParams);
+
+        const form = createOAuthForm(initialParams);
+        oauth2SignIn(form);
+      }
+    };
+    xhr.send(null);
+  } 
+  else {
+
+    localStorage.removeItem('oauth2-test-params');
+    setParams(initialParams);
+    setStore(initialParams);
+
+    const form = createOAuthForm(initialParams);
+    oauth2SignIn(form);
   }
+}
+
 
   async function verifyState(stateToCheck: string): Promise<boolean> {
     const storedState = sessionStorage.getItem('oauth2-state');
@@ -243,21 +230,15 @@ useEffect(() => {
     </section>
     <div className="apps-linked-container">
       {!store.access_token ? (
-        <form
-          method="POST"
-          className="YT-sign-in-form"
-          action={oauth2Endpoint}
-          onSubmit={(e) => {
-            e.preventDefault();
-
-            const form = e.target as HTMLFormElement;
-            oauth2SignIn(form);
-          }}
-        >
-          <button type="submit" className="YT-sign-in">
-            <img src={youtube} />Sign in to YouTube
-          </button>
-        </form>
+        <button
+  className="YT-sign-in"
+  onClick={() => {
+    const form = createOAuthForm(initialParams);
+    oauth2SignIn(form);
+  }}
+>
+  <img src={youtube} /> Sign in to YouTube
+</button>
       )
         : (
           <button className="YT-sign-in">

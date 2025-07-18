@@ -112,3 +112,14 @@ export type cleanYoutubePlaylists = {
     songArtist: string;
     songTitle: string;
   }
+
+  export type OAuthParams = {
+  client_id?: string;
+  redirect_uri?: string;
+  response_type?: string;
+  scope?: string;
+  include_granted_scopes?: string;
+  state?: string;
+  access_token?: string;
+  [key: string]: string | undefined;
+};

@@ -23,6 +23,10 @@ export interface ISongId {
     playlistId?: number;
 
 }
+export interface IUpdateSong{
+    id: number;
+    previewId: number | undefined;
+}
 
 export interface SongState {
     byId: SongId;

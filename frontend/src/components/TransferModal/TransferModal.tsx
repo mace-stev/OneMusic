@@ -11,6 +11,7 @@ import { ISong } from "../../redux/types/song";
 import { OAuthParams, YoutubePlaylists, cleanYoutubePlaylists, FilteredYoutubeSong, YoutubeVideos, UpdatedFilteredYoutubeSong } from "../../../types/youtube"
 import processYoutubeSongs from "../../../utils"
 import { csrfFetch } from "../../redux/csrf";
+import { createOAuthForm, oauth2SignIn } from "../../../utils/YTAuth"
 
 function TransferModal() {
   const [store, setStore] = useState<OAuthParams>(JSON.parse(localStorage.getItem('oauth2-test-params') || '{}'));
@@ -22,15 +23,17 @@ function TransferModal() {
   const [imageId, setImageId] = useState<number>()
   const [songs, setSongs] = useState<UpdatedFilteredYoutubeSong[]>([])
   const [onSubmitIsDone, setOnSubmitIsDone] = useState<boolean>(false)
+  const [onSubmitClicked, setOnSubmitClicked] = useState<boolean>(false)
   const [createdPlaylistId, setCreatedPlaylistId] = useState<number>()
   const dispatch = useDispatch()
   const { closeModal } = useModal()
   const [youtubeClicked, setYoutubeClicked] = useState<boolean>(false)
+  const [loading, setLoading] = useState<string>("Please Wait...")
 
   ///////////////On form submit, a user's playlist and all of that playlists items is fetched and the data is then organized.
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-
+    setOnSubmitClicked(true)
     if (playlistURL === "") {
       const undefinedImageUrl =
         "https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg";
@@ -103,6 +106,7 @@ function TransferModal() {
         const pageData = await result.json();
 
         for (const element of pageData.items as YoutubeVideos[]) {
+          console.log(element)
           const songImage = await new Promise<{ id: string }>((resolve, reject) => {
             let image = element.snippet.thumbnails.default?.url
             if (!image) {
@@ -147,76 +151,78 @@ function TransferModal() {
 
   /////////useEffect that creates a playlist and adds songs to the database after its preview image is created   
   useEffect(() => {
-  async function createPlaylistAndSongs() {
-    const copy = songs.filter((element)=>{
-      if(element.title !== "Deleted video" && element.songArtist!=='' && element.songTitle!==''){
-        return element
-      }
-    })
-    for (const element of copy) {
-      if (element.title !== "Deleted video" && element.songArtist!=='' && element.songTitle!=='') {
-        const song = await new Promise<{ id: string }>((resolve, reject) => {
-          dispatch(
-            thunkCreateSong({
-              title: element.songTitle,
-              artist: element.songArtist,
-              previewId: Number(element.imageId),
-            })
-          )
-            .then((created: ISong) => {
-              if (created?.id) resolve({ id: created.id.toString() });
-              else reject(new Error("Song ID is undefined"));
-            })
-            .catch(reject);
-        });
-        element.id = song.id;
+    async function createPlaylistAndSongs() {
+      const copy = songs.filter((element) => {
+        if (element.title !== "Deleted video" && element.songArtist !== '' && element.songTitle !== '') {
+          return element
+        }
+      })
+      for (const element of copy) {
+        if (element.title !== "Deleted video" && element.songArtist !== '' && element.songTitle !== '') {
+          const song = await new Promise<{ id: string }>((resolve, reject) => {
+            dispatch(
+              thunkCreateSong({
+                title: element.songTitle,
+                artist: element.songArtist,
+                previewId: Number(element.imageId),
+              })
+            )
+              .then((created: ISong) => {
+                if (created?.id) resolve({ id: created.id.toString() });
+                else reject(new Error("Song ID is undefined"));
+              })
+              .catch(reject);
+          });
+          element.id = song.id;
 
-        if (
-          element.ytId === copy[copy.length - 1].ytId &&
-          imageId !== undefined
-        ) {
-          const playlist = await dispatch(
-            thunkCreatePlaylist({ name: playlistName, previewId: imageId })
-          );
-          setCreatedPlaylistId(playlist.id);
+          if (
+            element.ytId === copy[copy.length - 1].ytId &&
+            imageId !== undefined
+          ) {
+            const playlist = await dispatch(
+              thunkCreatePlaylist({ name: playlistName, previewId: imageId })
+            );
+            setCreatedPlaylistId(playlist.id);
+          }
         }
       }
+
+      setSongs(copy);
     }
 
-    setSongs(copy);
-  }
-
-  if (onSubmitIsDone===true) {
-    createPlaylistAndSongs();
-  }
-}, [onSubmitIsDone, dispatch]);
+    if (onSubmitIsDone === true) {
+      createPlaylistAndSongs();
+    }
+  }, [onSubmitIsDone, dispatch]);
 
 
   useEffect(() => {
-  async function addSongsToPlaylist() {
-    if (!createdPlaylistId) return;
+    async function addSongsToPlaylist() {
+      if (!createdPlaylistId) return;
 
-    for (const element of songs) {
-      const response = await csrfFetch(
-        `/api/playlist/${createdPlaylistId}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ songId: element?.id }),
+      for (const [index, element] of songs.entries()) {
+        let percentage=(((index+1)*100)/songs.length).toFixed(1)
+        setLoading(`${percentage}%`)
+        const response = await csrfFetch(
+          `/api/playlist/${createdPlaylistId}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ songId: element?.id }),
+          }
+        );
+        if (!response.ok) {
+          const err = await response.json();
+          console.error('Failed to add song', element.id, err);
         }
-      );
-      if (!response.ok) {
-        const err = await response.json();
-        console.error('Failed to add song', element.id, err);
       }
+
+
+      closeModal();
     }
 
- 
-    closeModal();
-  }
-
-  addSongsToPlaylist();
-}, [createdPlaylistId]);
+    addSongsToPlaylist();
+  }, [createdPlaylistId]);
   /////////////////////////
   ///////////useEffect that fetches the user's playlists///////
   useEffect(() => {
@@ -231,15 +237,23 @@ function TransferModal() {
             },
           }
         );
-
+        if (res.status === 401) {
+          localStorage.removeItem('oauth2-test-params');
+          const initialParams: OAuthParams = JSON.parse(
+            import.meta.env.VITE_PARAMS || '{}'
+          );
+          const form = createOAuthForm(initialParams);
+          oauth2SignIn(form);
+        }
         if (!res.ok) {
           const err = await res.json();
           throw new Error(`${res.status} ${res.statusText}: ${err.error?.message}`);
         }
 
         const data = await res.json();
+        console.log(data)
         const cleaned: cleanYoutubePlaylists[] = []
-        for(const element of data.items){
+        for (const element of data.items) {
           const obj = {
             id: element.id,
             snippet: {
@@ -279,6 +293,7 @@ function TransferModal() {
   ///////////////////////////
   return (
     <div className="playlist-transfer-modal-div">
+      {onSubmitClicked===false ? (
       <form className="playlist-transfer-form" onSubmit={(e) => {
         e.preventDefault()
         onSubmit(e)
@@ -301,6 +316,12 @@ function TransferModal() {
 
 
       </form>
+      ):(<>
+        <h1>{loading}</h1>
+        <h2>Popup will automatically close when done</h2>
+        </>
+        
+      )}
     </div>
   )
 }

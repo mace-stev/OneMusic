@@ -7,7 +7,8 @@
     padding: 4rem 2rem;
     background-color: #1e1e1e;
     color: white;
-    border: solid 2px white
+    border: solid 2px white;
+    z-index: 750;
 }
 .profile-pic{
     width: 3rem;

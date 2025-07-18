@@ -1,5 +1,5 @@
 import './SongUpdateModal.css'
-import { ISong } from "../../redux/types/song";
+import { ISong, IUpdateSong } from "../../redux/types/song";
 import { FormEvent, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
@@ -9,7 +9,7 @@ import { thunkUpdateImage } from '../../redux/image';
 
 
 type SongUpdateModalProps={
-  songData: ISong,
+  songData: IUpdateSong,
   playlistId : IPlaylistId
 }
 function SongUpdateModal({songData, playlistId}: SongUpdateModalProps){
