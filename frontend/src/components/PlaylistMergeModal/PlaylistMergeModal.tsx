@@ -1,10 +1,11 @@
 import "./PlaylistMergeModal.css"
 import { IPlaylist } from "../../redux/types/playlist"
 import { FormEvent, useState, useEffect } from "react"
-import { thunkGetOnePlaylist, thunkRemovePlaylist } from "../../redux/playlist"
+import { thunkGetOnePlaylist, thunkRemovePlaylist, thunkGetAllPlaylists } from "../../redux/playlist"
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from "../../redux/store";
 import { csrfFetch } from "../../redux/csrf";
+import { useModal } from '../../context/Modal';
 
 type PlaylistMergeModalAttributes = {
     playlists: IPlaylist[]
@@ -17,6 +18,7 @@ export default function PlaylistMergeModal({ playlists }: PlaylistMergeModalAttr
     const [playlist1Songs, setPlaylist1Songs] = useState<IPlaylist['Songs']>()
     const [playlist2Songs, setPlaylist2Songs] = useState<IPlaylist['Songs']>()
     const [error, setError]= useState<string>("")
+    const {closeModal} = useModal()
     async function onSubmit(e: FormEvent) {
         try {
             e.preventDefault()
@@ -62,9 +64,10 @@ export default function PlaylistMergeModal({ playlists }: PlaylistMergeModalAttr
                     }
 
                 }
-                console.log(playlist1Songs)
-                console.log(playlist2Songs)
+                
                 await dispatch(thunkRemovePlaylist({ id: Number(playlist2) }))
+                await dispatch(thunkGetAllPlaylists())
+                closeModal()
             }
         }
         mergePlaylist()

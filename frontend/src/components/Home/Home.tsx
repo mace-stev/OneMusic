@@ -19,6 +19,7 @@ import { OAuthParams } from "../../../types/youtube";
 import { createOAuthForm, oauth2SignIn } from "../../../utils/YTAuth"
 import { sha256, codeVerifier, base64encode } from "../../../utils/SpotifyAuth"
 import PlaylistMergeModal from "../PlaylistMergeModal";
+import { spotifySignIn } from "../../../utils/SpotifyAuth";
 
 
 
@@ -32,91 +33,69 @@ function Home() {
   const navigate = useNavigate();
   const { setModalContent } = useModal();
   const [spotifyAuthCode, setSpotifyAuthCode] = useState<string>("")
-  const [spotifyAccessCode, setSpotifyAccessCode]= useState<string>("")
-
+  const rawToken = localStorage.getItem('access_token');
+  const initialToken =
+    rawToken && rawToken !== 'undefined' ? rawToken : '';
+  const [spotifyAccessCode, setSpotifyAccessCode] = useState(initialToken);
 
   ///////Spotify OAuth////
-async function spotifySignIn() {
-  const hashed = await sha256(codeVerifier);
-  const challenge = base64encode(hashed);
-  window.localStorage.setItem('code_verifier', codeVerifier);
-
-  const params = new URLSearchParams({
-    response_type: 'code',
-    client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
-    scope: "playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public ugc-image-upload",
-    code_challenge_method: 'S256',
-    code_challenge: challenge,
-    redirect_uri: import.meta.env.VITE_SPOTIFY_REDIRECT_URL,
-  });
-
-  window.location.href = `https://accounts.spotify.com/authorize?${params}`;
-}
- useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if (code) {
-    setSpotifyAuthCode(code);
-    window.history.replaceState(
-      {}, 
-      '', 
-      window.location.origin + window.location.pathname
-    );
-  }
-}, []);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const verifier = localStorage.getItem("spotify_code_verifier");
+    const state = params.get("state");
+    const goodState = localStorage.getItem("spotify_state");
 
 
+    if (code && verifier && state === goodState) {
+      setSpotifyAuthCode(code);
+
+      window.history.replaceState(
+        {}, "", window.location.origin + window.location.pathname
+      );
+    }
+  }, []);
 
 
   useEffect(() => {
+    if (!spotifyAuthCode) return;
+
     const getToken = async (code: string) => {
-      type urlParams = {
-        client_id: string;
-        grant_type: string;
-        code: string;
-        redirect_uri: string;
-        code_verifier: string
-      }
-      const codeVerifier = localStorage.getItem('code_verifier');
-      console.log(import.meta.env.VITE_SPOTIFY_REDIRECT_URL)
-      if (typeof (codeVerifier) === 'string') {
-        const spotifyUrlParams: urlParams = {
-          client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
-          grant_type: 'authorization_code',
-          code: code,
-          redirect_uri: import.meta.env.VITE_SPOTIFY_REDIRECT_URL,
-          code_verifier: codeVerifier
-        }
+      const verifier = localStorage.getItem("spotify_code_verifier");
+      if (!verifier) return;
 
+      const spotifyUrlParams = {
+        client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: import.meta.env.VITE_SPOTIFY_REDIRECT_URL,
+        code_verifier: verifier,
+      };
 
-        // stored in the previous step
-
-
-        const url = "https://accounts.spotify.com/api/token";
-        const payload = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
+      const response = await (
+        await fetch("https://accounts.spotify.com/api/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams(spotifyUrlParams),
-        }
+        })
+      ).json();
 
-        const body = await fetch(url, payload);
+      if (response.access_token) {
+        localStorage.setItem("access_token", response.access_token);
+        setSpotifyAccessCode(response.access_token);
 
-        const response = await body.json();
-        console.log(response)
 
-        localStorage.setItem('access_token', response.access_token);
-        setSpotifyAccessCode(response.access_token)
+        localStorage.removeItem("spotify_code_verifier");
+        localStorage.removeItem("spotify_state");
+        setSpotifyAuthCode("");
+      } else {
+        localStorage.removeItem("access_token");
+        setSpotifyAccessCode("");
       }
+    };
 
-    }
-    if (spotifyAuthCode !== "") {
-      getToken(spotifyAuthCode)
-    }
-
-  }, [spotifyAuthCode])
-
+    getToken(spotifyAuthCode);
+  }, [spotifyAuthCode]);
 
 
   //////Youtube OAuth////////
@@ -267,7 +246,7 @@ async function spotifySignIn() {
         <div className="playlist-button"><OpenModalMenuItem
           itemText="Merge"
           onItemClick={closeMenu}
-          modalComponent={<PlaylistMergeModal playlists={playlists}/>}
+          modalComponent={<PlaylistMergeModal playlists={playlists} />}
         /></div>
 
 
@@ -329,21 +308,21 @@ async function spotifySignIn() {
             <img src={youtube} />Signed in to Youtube
           </button>
         )}
-      {spotifyAccessCode!=="" ? (
-        <button
-          className="spotify-sign-in"
-          onClick={() => {
-            spotifySignIn()
-          }}
-        >
-          <img src={spotify} /> Sign in to Spotify
-        </button>
-      )
+      {!spotifyAccessCode
+        ? (
+          <button
+            className="spotify-sign-in"
+            onClick={() => spotifySignIn()}
+          >
+            <img src={spotify} /> Sign in to Spotify
+          </button>
+        )
         : (
           <button className="spotify-sign-in">
-            <img src={spotify} />Signed in to Spotify
+            <img src={spotify} /> Signed in to Spotify
           </button>
-        )}
+        )
+      }
     </div>
 
 

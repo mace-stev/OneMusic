@@ -18,17 +18,24 @@ export const base64encode = (input: ArrayBuffer) => {
     .replace(/\//g, '_');
 }
 export async function spotifySignIn() {
-  const hashed = await sha256(codeVerifier);
+  
+  const verifier = generateRandomString(128);
+  localStorage.setItem("spotify_code_verifier", verifier);
+
+  const state = generateRandomString(16);
+  localStorage.setItem("spotify_state", state);
+
+  const hashed = await sha256(verifier);
   const challenge = base64encode(hashed);
-  window.localStorage.setItem('code_verifier', codeVerifier);
 
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
+    redirect_uri: import.meta.env.VITE_SPOTIFY_REDIRECT_URL,
     scope: "playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public ugc-image-upload",
     code_challenge_method: 'S256',
     code_challenge: challenge,
-    redirect_uri: import.meta.env.VITE_SPOTIFY_REDIRECT_URL,
+    state,               
   });
 
   window.location.href = `https://accounts.spotify.com/authorize?${params}`;

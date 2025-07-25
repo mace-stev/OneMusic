@@ -350,7 +350,7 @@ function TransferModal() {
     async function youtubeCall() {
       try {
         const res = await fetch(
-          "https://www.googleapis.com/youtube/v3/playlists?part=snippet&mine=true",
+          "https://www.googleapis.com/youtube/v3/playlists?part=snippet&mine=true&maxResults=50",
           {
             headers: {
               Authorization: `Bearer ${store.access_token}`,
@@ -446,13 +446,18 @@ function TransferModal() {
               setPlaylistId(element.id)
             }}></input></div>
           )
+          
         })}
+        {youtubeClicked ===true &&(
+          <button type="submit" className="playlist-transfer-submit">YT Submit</button>
+        )}
+        
       
 
 
       </form>
       ):(<>
-        <button type="submit" className="playlist-transfer-submit">Submit</button>
+        
         <h1>{loading}</h1>
         <h2>Popup will automatically close when done</h2>
         </>
