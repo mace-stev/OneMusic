@@ -12,6 +12,8 @@ import { OAuthParams, YoutubePlaylists, cleanYoutubePlaylists, FilteredYoutubeSo
 import processYoutubeSongs from "../../../utils"
 import { csrfFetch } from "../../redux/csrf";
 import { createOAuthForm, oauth2SignIn } from "../../../utils/YTAuth"
+import { spotifySignIn } from "../../../utils/SpotifyAuth";
+import {spotifyPlaylist} from "../../../types/spotify"
 
 function TransferModal() {
   const [store, setStore] = useState<OAuthParams>(JSON.parse(localStorage.getItem('oauth2-test-params') || '{}'));
@@ -24,14 +26,133 @@ function TransferModal() {
   const [songs, setSongs] = useState<UpdatedFilteredYoutubeSong[]>([])
   const [onSubmitIsDone, setOnSubmitIsDone] = useState<boolean>(false)
   const [onSubmitClicked, setOnSubmitClicked] = useState<boolean>(false)
+  const [spotifyOnSubmitClicked, setSpotifyOnSubmitClicked] = useState<boolean>(false)
+  const [spotifyClicked, setSpotifyClicked] = useState<boolean>(false)
+  const [spotifyPlaylists , setSpotifyPlaylists] = useState<spotifyPlaylist[]>([])
   const [createdPlaylistId, setCreatedPlaylistId] = useState<number>()
   const dispatch = useDispatch()
   const { closeModal } = useModal()
   const [youtubeClicked, setYoutubeClicked] = useState<boolean>(false)
   const [loading, setLoading] = useState<string>("Please Wait...")
+  const [spotifyAuthCode, setSpotifyAuthCode] = useState<string>("")
+  const [spotifyAccessCode, setSpotifyAccessCode]= useState<string>("")
+  const [spotifyPlaylistUrl, setSpotifyPlaylistUrl] = useState<spotifyPlaylist[`href`]>()
+  const [spotifyPlaylistName, setSpotifyPlaylistName] = useState<spotifyPlaylist[`name`]>()
+  const [spotifyPlaylistImage, setSpotifyPlaylistImage] = useState<spotifyPlaylist[`image`]>()
+ 
 
-  ///////////////On form submit, a user's playlist and all of that playlists items is fetched and the data is then organized.
-  async function onSubmit(event: FormEvent) {
+
+
+    ///////Spotify OAuth////
+ useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    setSpotifyAuthCode(code);
+    window.history.replaceState(
+      {}, 
+      '', 
+      window.location.origin + window.location.pathname
+    );
+  }
+}, []);
+  useEffect(() => {
+    const getToken = async (code: string) => {
+      type urlParams = {
+        client_id: string;
+        grant_type: string;
+        code: string;
+        redirect_uri: string;
+        code_verifier: string
+      }
+      const codeVerifier = localStorage.getItem('code_verifier');
+      console.log(import.meta.env.VITE_SPOTIFY_REDIRECT_URL)
+      if (typeof (codeVerifier) === 'string') {
+        const spotifyUrlParams: urlParams = {
+          client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: import.meta.env.VITE_SPOTIFY_REDIRECT_URL,
+          code_verifier: codeVerifier
+        }
+
+
+        // stored in the previous step
+
+
+        const url = "https://accounts.spotify.com/api/token";
+        const payload = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams(spotifyUrlParams),
+        }
+
+        const body = await fetch(url, payload);
+
+        const response = await body.json();
+        console.log(response)
+
+        localStorage.setItem('access_token', response.access_token);
+        setSpotifyAccessCode(response.access_token)
+      }
+
+    }
+    if (spotifyAuthCode !== "") {
+      getToken(spotifyAuthCode)
+    }
+
+  }, [spotifyAuthCode])
+
+
+  async function onSubmitSpotify(event: FormEvent){
+    event.preventDefault()
+    const accessToken = localStorage.getItem('access_token')
+    const result = await fetch(`${spotifyPlaylistUrl}?limit=50`,
+      {headers:{
+        Authorization: `Bearer ${accessToken}`
+      }}
+    
+    )
+    const resultData = await result.json()
+    console.log(resultData)
+  }
+  useEffect(()=>{
+    async function spotifyCall(){
+      const fetchedPlaylists: spotifyPlaylist[]=[]
+      const accessToken = localStorage.getItem('access_token')
+      const result = await fetch("https://api.spotify.com/v1/me/playlists",{
+        headers:{
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      if(result.status===401){
+        spotifySignIn()
+      }
+      const resultData = await result.json()
+      console.log(resultData.items)
+      for(const element of resultData.items){
+        let image=""
+        if(element.images){
+          image=element.images[0]
+        }
+        console.log(element.images)
+        fetchedPlaylists.push({href: element.href, name: element.name, image: image })
+      }
+      setSpotifyPlaylists(fetchedPlaylists)
+    }
+    if(spotifyClicked===true){
+      spotifyCall()
+    }
+    
+
+  }, [spotifyClicked])
+
+ 
+
+  ///////////////On form submit, a user's playlist and all of that playlists items are fetched from youtube and the data is then organized.
+  async function onSubmitYoutube(event: FormEvent) {
     event.preventDefault();
     setOnSubmitClicked(true)
     if (playlistURL === "") {
@@ -106,7 +227,7 @@ function TransferModal() {
         const pageData = await result.json();
 
         for (const element of pageData.items as YoutubeVideos[]) {
-          console.log(element)
+      
           const songImage = await new Promise<{ id: string }>((resolve, reject) => {
             let image = element.snippet.thumbnails.default?.url
             if (!image) {
@@ -251,7 +372,6 @@ function TransferModal() {
         }
 
         const data = await res.json();
-        console.log(data)
         const cleaned: cleanYoutubePlaylists[] = []
         for (const element of data.items) {
           const obj = {
@@ -293,10 +413,25 @@ function TransferModal() {
   ///////////////////////////
   return (
     <div className="playlist-transfer-modal-div">
+      <form className="spotify-transfer-form" onSubmit={(e)=>onSubmitSpotify(e)}></form>
+      {spotifyClicked === false && (
+        <button type="button" onClick={() => {
+          setSpotifyClicked(true)
+        }}>Transfer From Spotify?</button>
+      )}
+           {spotifyPlaylists?.map((element) => {
+          return (
+            <div key={element.href}><label htmlFor={element.name}>{element.name}</label><input className="playlist-transfer-input" type="radio" value={element.href} name="playlistURL" onChange={(e) => {
+              setSpotifyPlaylistName(element.name)
+              setSpotifyPlaylistUrl(element.href)
+              setSpotifyPlaylistImage(element.image)
+            }}></input></div>
+          )
+        })}
       {onSubmitClicked===false ? (
       <form className="playlist-transfer-form" onSubmit={(e) => {
         e.preventDefault()
-        onSubmit(e)
+        onSubmitYoutube(e)
       }}> {youtubeClicked === false && (
         <button type="button" onClick={() => {
           setYoutubeClicked(true)
@@ -312,11 +447,12 @@ function TransferModal() {
             }}></input></div>
           )
         })}
-        <button type="submit" className="playlist-transfer-submit">Submit</button>
+      
 
 
       </form>
       ):(<>
+        <button type="submit" className="playlist-transfer-submit">Submit</button>
         <h1>{loading}</h1>
         <h2>Popup will automatically close when done</h2>
         </>

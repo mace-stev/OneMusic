@@ -12,10 +12,14 @@ import { thunkAuthenticate } from "../../redux/session";
 import { useModal } from '../../context/Modal';
 import SignupFormModal from "../SignupFormModal";
 import youtube from "../../yt_logo_mono_dark.png";
+import spotify from "../../spotify-1759471_1280.jpg"
 import bcrypt from "bcryptjs";
 import TransferModal from "../TransferModal";
 import { OAuthParams } from "../../../types/youtube";
-import {createOAuthForm, oauth2SignIn} from "../../../utils/YTAuth"
+import { createOAuthForm, oauth2SignIn } from "../../../utils/YTAuth"
+import { sha256, codeVerifier, base64encode } from "../../../utils/SpotifyAuth"
+import PlaylistMergeModal from "../PlaylistMergeModal";
+
 
 
 
@@ -27,10 +31,95 @@ function Home() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { setModalContent } = useModal();
+  const [spotifyAuthCode, setSpotifyAuthCode] = useState<string>("")
+  const [spotifyAccessCode, setSpotifyAccessCode]= useState<string>("")
+
+
+  ///////Spotify OAuth////
+async function spotifySignIn() {
+  const hashed = await sha256(codeVerifier);
+  const challenge = base64encode(hashed);
+  window.localStorage.setItem('code_verifier', codeVerifier);
+
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
+    scope: "playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public ugc-image-upload",
+    code_challenge_method: 'S256',
+    code_challenge: challenge,
+    redirect_uri: import.meta.env.VITE_SPOTIFY_REDIRECT_URL,
+  });
+
+  window.location.href = `https://accounts.spotify.com/authorize?${params}`;
+}
+ useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    setSpotifyAuthCode(code);
+    window.history.replaceState(
+      {}, 
+      '', 
+      window.location.origin + window.location.pathname
+    );
+  }
+}, []);
 
 
 
-  //////Youtube OAuth
+
+  useEffect(() => {
+    const getToken = async (code: string) => {
+      type urlParams = {
+        client_id: string;
+        grant_type: string;
+        code: string;
+        redirect_uri: string;
+        code_verifier: string
+      }
+      const codeVerifier = localStorage.getItem('code_verifier');
+      console.log(import.meta.env.VITE_SPOTIFY_REDIRECT_URL)
+      if (typeof (codeVerifier) === 'string') {
+        const spotifyUrlParams: urlParams = {
+          client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: import.meta.env.VITE_SPOTIFY_REDIRECT_URL,
+          code_verifier: codeVerifier
+        }
+
+
+        // stored in the previous step
+
+
+        const url = "https://accounts.spotify.com/api/token";
+        const payload = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams(spotifyUrlParams),
+        }
+
+        const body = await fetch(url, payload);
+
+        const response = await body.json();
+        console.log(response)
+
+        localStorage.setItem('access_token', response.access_token);
+        setSpotifyAccessCode(response.access_token)
+      }
+
+    }
+    if (spotifyAuthCode !== "") {
+      getToken(spotifyAuthCode)
+    }
+
+  }, [spotifyAuthCode])
+
+
+
+  //////Youtube OAuth////////
   const oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
   const initialParams: OAuthParams = JSON.parse(
     import.meta.env.VITE_PARAMS || '{}'
@@ -40,75 +129,70 @@ function Home() {
   const [store, setStore] = useState<OAuthParams>(JSON.parse(localStorage.getItem('oauth2-test-params') || '{}'));
   const [isLoaded, setIsLoaded] = useState(false);
 
-useEffect(() => {
-  console.log(params)
-  const hash = window.location.hash.substring(1);
-  if (!hash) return;
-  const updated: OAuthParams = { ...store };
-  new URLSearchParams(hash).forEach((val, key) => {
-    (updated as any)[key] = val;
-  });
+  useEffect(() => {
+    const hash = window.location.hash.substring(1);
+    if (!hash) return;
+    const updated: OAuthParams = { ...store };
+    new URLSearchParams(hash).forEach((val, key) => {
+      (updated as any)[key] = val;
+    });
 
-  setParams(updated);
-  setStore(updated);
-  console.log(updated)
-  localStorage.setItem("oauth2-test-params", JSON.stringify(updated));
-  window.history.replaceState(
-    {},
-    document.title,
-    window.location.pathname + window.location.search
-  );
-  if (updated.state === "try_sample_request") {
-    trySampleRequest();
-  }
-}, []);
-
-
-async function trySampleRequest() {
-  const localParams: OAuthParams =
-    JSON.parse(localStorage.getItem('oauth2-test-params') || '{}');
-
-  setParams(localParams);
-  setStore(localParams);
-
-  
-  const stateIsValid = await verifyState(localParams.state || '');
-
- 
-  if (localParams.access_token && stateIsValid) {
-    const xhr = new XMLHttpRequest();
-    xhr.open(
-      'POST',
-      `https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true&access_token=${localParams.access_token}`
+    setParams(updated);
+    setStore(updated);
+    localStorage.setItem("oauth2-test-params", JSON.stringify(updated));
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname + window.location.search
     );
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState !== 4) return;
+    if (updated.state === "try_sample_request") {
+      trySampleRequest();
+    }
+  }, []);
 
-      if (xhr.status === 200) {
-        console.log(xhr.response);
-      } 
-      else if (xhr.status === 401) {
-     
-        localStorage.removeItem('oauth2-test-params');
-        setParams(initialParams);
-        setStore(initialParams);
 
-        const form = createOAuthForm(initialParams);
-        oauth2SignIn(form);
-      }
-    };
-    xhr.send(null);
-  } 
-  else {
+  async function trySampleRequest() {
+    const localParams: OAuthParams =
+      JSON.parse(localStorage.getItem('oauth2-test-params') || '{}');
 
-    localStorage.removeItem('oauth2-test-params');
-    setParams(initialParams);
-    setStore(initialParams);
+    setParams(localParams);
+    setStore(localParams);
 
-    const form = createOAuthForm(initialParams);
-    oauth2SignIn(form);
+
+    const stateIsValid = await verifyState(localParams.state || '');
+
+
+    if (localParams.access_token && stateIsValid) {
+      const xhr = new XMLHttpRequest();
+      xhr.open(
+        'POST',
+        `https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true&access_token=${localParams.access_token}`
+      );
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState !== 4) return;
+
+        else if (xhr.status === 401) {
+
+          localStorage.removeItem('oauth2-test-params');
+          setParams(initialParams);
+          setStore(initialParams);
+
+          const form = createOAuthForm(initialParams);
+          oauth2SignIn(form);
+        }
+      };
+      xhr.send(null);
+    }
+    else {
+
+      localStorage.removeItem('oauth2-test-params');
+      setParams(initialParams);
+      setStore(initialParams);
+
+      const form = createOAuthForm(initialParams);
+      oauth2SignIn(form);
+    }
   }
-}
 
 
   async function verifyState(stateToCheck: string): Promise<boolean> {
@@ -118,8 +202,8 @@ async function trySampleRequest() {
 
     return bcrypt.compare(stateToCheck, storedState);
   }
-//////////////////////////////////////////
-//////////////////////////////////////////
+  //////////////////////////////////////////
+  //////////////////////////////////////////
   //////////////Modal Menu Functionality////////
   const [showMenu, setShowMenu] = useState<Record<number, boolean>>({});
   const ulRefs = useRef<Record<number, HTMLUListElement | null>>({});
@@ -170,10 +254,10 @@ async function trySampleRequest() {
   useEffect(() => {
     if (!user) {
       thunkAuthenticate()
-      if(!user){
-      setModalContent(<SignupFormModal />)
+      if (!user) {
+        setModalContent(<SignupFormModal />)
       }
-     }
+    }
   }, [user])
 
   return (<div className="home-page">
@@ -183,7 +267,7 @@ async function trySampleRequest() {
         <div className="playlist-button"><OpenModalMenuItem
           itemText="Merge"
           onItemClick={closeMenu}
-          modalComponent={<CreatePlaylistModal />}
+          modalComponent={<PlaylistMergeModal playlists={playlists}/>}
         /></div>
 
 
@@ -193,7 +277,7 @@ async function trySampleRequest() {
           modalComponent={<CreatePlaylistModal />}
         /></div>
 
-         <div className="playlist-button"><OpenModalMenuItem
+        <div className="playlist-button"><OpenModalMenuItem
           itemText="transfer"
           onItemClick={closeMenu}
           modalComponent={<TransferModal />}
@@ -231,18 +315,33 @@ async function trySampleRequest() {
     <div className="apps-linked-container">
       {!store.access_token ? (
         <button
-  className="YT-sign-in"
-  onClick={() => {
-    const form = createOAuthForm(initialParams);
-    oauth2SignIn(form);
-  }}
->
-  <img src={youtube} /> Sign in to YouTube
-</button>
+          className="YT-sign-in"
+          onClick={() => {
+            const form = createOAuthForm(initialParams);
+            oauth2SignIn(form);
+          }}
+        >
+          <img src={youtube} /> Sign in to YouTube
+        </button>
       )
         : (
           <button className="YT-sign-in">
             <img src={youtube} />Signed in to Youtube
+          </button>
+        )}
+      {spotifyAccessCode!=="" ? (
+        <button
+          className="spotify-sign-in"
+          onClick={() => {
+            spotifySignIn()
+          }}
+        >
+          <img src={spotify} /> Sign in to Spotify
+        </button>
+      )
+        : (
+          <button className="spotify-sign-in">
+            <img src={spotify} />Signed in to Spotify
           </button>
         )}
     </div>

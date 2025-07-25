@@ -84,7 +84,9 @@
     overflow: hidden;
 }
 
-html, body,#root {
+html,
+body,
+#root {
 
     height: fit-content;
     width: 100%;
@@ -136,11 +138,13 @@ html, body,#root {
     box-sizing: border-box;
     text-align: center;
 }
-.YT-sign-in-form{
+
+.YT-sign-in-form {
     text-align: center;
     margin: 5rem 0;
 }
-.YT-sign-in{
+
+.YT-sign-in {
     width: 100%;
     height: 3rem;
     background: #0E1619;
@@ -152,25 +156,56 @@ html, body,#root {
     line-height: 2.5rem;
     text-wrap: nowrap;
 }
-    .YT-sign-in>img{  
-        height: 1.25rem;
-        margin: auto 0.5rem auto 0.5rem;
-        display: block;
-    }
-    .YT-sign-in>.hidden{
-        display:none;
-    }
-.home-page{
+
+.YT-sign-in>img {
+    height: 1.25rem;
+    margin: auto 0.5rem auto 0.5rem;
+    display: block;
+}
+
+.YT-sign-in>.hidden {
+    display: none;
+}
+
+.home-page {
     display: flex;
     justify-content: right;
 }
-.apps-linked-container{
+
+.apps-linked-container {
 
     height: 100%;
     border: white solid;
     margin-top: 4.25rem
 }
-.playlist-section{
+
+.playlist-section {
     position: absolute;
-    right:37%
+    right: 37%
+}
+
+.spotify-sign-in>img {
+    height: 1.25rem;
+    margin: auto 0.5rem auto 0.5rem;
+    display: block;
+}
+
+.spotify-sign-in {
+    width: 100%;
+    height: 3rem;
+    background: #0E1619;
+    color: white;
+    border: 5px solid white;
+    border-radius: 1rem;
+    display: flex;
+    margin: auto;
+    line-height: 2.5rem;
+    text-wrap: nowrap;
+}
+
+@media (max-width: 430px) {
+    .playlist-image-container>img {
+        width: 100%;
+        height: 100%;
+    }
 }

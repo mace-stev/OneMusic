@@ -1,0 +1,37 @@
+.playlist-merge-form{
+    display: flex;
+    flex-direction: column;
+}
+.playlist-merge-modal-div{
+     text-align: center;
+    padding: 3rem 2rem;
+    background-color: #1e1e1e;
+    color: white;
+    border: solid 2px white
+}
+
+.playlist-merge-form>input{
+   width: 100%;
+    box-sizing: border-box;
+    margin: 1rem 0;
+    color: black;
+    font-weight: 600
+}
+.playlist-merge-div>h1{
+    font-size: 1.5rem;
+    margin-top: .5rem;
+}
+.playlist-merge-div>h2{
+    font-size: .9rem;
+    margin-top: .5rem;
+}
+.playlist-merge-submit{
+    background-color: #1e1e1e;
+    color: white;
+    border: solid 2px white;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.error-message{
+    color: maroon;
+}
