@@ -27,12 +27,12 @@ export async function spotifySignIn() {
 
   const hashed = await sha256(verifier);
   const challenge = base64encode(hashed);
-
+console.log("Outgoing Spotify redirect_uri:", import.meta.env.VITE_SPOTIFY_REDIRECT_URL);
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
     redirect_uri: import.meta.env.VITE_SPOTIFY_REDIRECT_URL,
-    scope: "playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public ugc-image-upload",
+    scope: "playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public ugc-image-upload user-read-email",
     code_challenge_method: 'S256',
     code_challenge: challenge,
     state,               

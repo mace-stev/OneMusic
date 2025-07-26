@@ -31,71 +31,13 @@ function Home() {
   const user = useSelector((state: RootState) => state.session.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [spotifyAccessCode, setSpotifyAccessCode] = useState(localStorage.getItem('spotify_access_token'))
   const { setModalContent } = useModal();
-  const [spotifyAuthCode, setSpotifyAuthCode] = useState<string>("")
-  const rawToken = localStorage.getItem('access_token');
-  const initialToken =
-    rawToken && rawToken !== 'undefined' ? rawToken : '';
-  const [spotifyAccessCode, setSpotifyAccessCode] = useState(initialToken);
+ 
+  
 
-  ///////Spotify OAuth////
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-    const verifier = localStorage.getItem("spotify_code_verifier");
-    const state = params.get("state");
-    const goodState = localStorage.getItem("spotify_state");
-
-
-    if (code && verifier && state === goodState) {
-      setSpotifyAuthCode(code);
-
-      window.history.replaceState(
-        {}, "", window.location.origin + window.location.pathname
-      );
-    }
-  }, []);
-
-
-  useEffect(() => {
-    if (!spotifyAuthCode) return;
-
-    const getToken = async (code: string) => {
-      const verifier = localStorage.getItem("spotify_code_verifier");
-      if (!verifier) return;
-
-      const spotifyUrlParams = {
-        client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: import.meta.env.VITE_SPOTIFY_REDIRECT_URL,
-        code_verifier: verifier,
-      };
-
-      const response = await (
-        await fetch("https://accounts.spotify.com/api/token", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams(spotifyUrlParams),
-        })
-      ).json();
-
-      if (response.access_token) {
-        localStorage.setItem("access_token", response.access_token);
-        setSpotifyAccessCode(response.access_token);
-
-
-        localStorage.removeItem("spotify_code_verifier");
-        localStorage.removeItem("spotify_state");
-        setSpotifyAuthCode("");
-      } else {
-        localStorage.removeItem("access_token");
-        setSpotifyAccessCode("");
-      }
-    };
-
-    getToken(spotifyAuthCode);
-  }, [spotifyAuthCode]);
+  
+  
 
 
   //////Youtube OAuth////////
