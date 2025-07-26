@@ -211,6 +211,8 @@ function TransferModal() {
           },
         }
       );
+    
+
 
       const pageData = await res.json();
 
@@ -382,6 +384,16 @@ function TransferModal() {
   useEffect(() => {
     async function youtubeCall() {
       try {
+        // const channel = await fetch("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true",
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${store.access_token}`,
+        //       Accept: "application/json",
+        //     },
+        //   })
+        //   const channelResults = await channel.json()
+        //   // channelId=${channelResults.items[0].id}
+        
         const res = await fetch(
           "https://www.googleapis.com/youtube/v3/playlists?part=snippet&mine=true&maxResults=50",
           {
@@ -391,6 +403,7 @@ function TransferModal() {
             },
           }
         );
+        
         if (res.status === 401) {
           localStorage.removeItem('oauth2-test-params');
           const initialParams: OAuthParams = JSON.parse(

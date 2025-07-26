@@ -12,9 +12,11 @@ type UploadModalAttributes = {
 export default function UploadModal({ playlistSongs, playlist }: UploadModalAttributes) {
     const [store, setStore] = useState<OAuthParams>(JSON.parse(localStorage.getItem('oauth2-test-params') || '{}'));
     const [onSubmitIsDone, setOnSubmitIsDone] = useState<boolean>(false)
+    const [onSubmitClicked, setOnSubmitClicked] = useState<boolean>(false)
     const [videosToAdd, setVideosToAdd] = useState<Record<number, string>>({});
     const [playlistId, setPlaylistId] = useState<number>(0)
     const { closeModal } = useModal()
+    const [loading, setLoading] = useState<string>("Please Wait...")
 
 
     async function onSubmitSpotify(e: FormEvent) {
@@ -49,6 +51,8 @@ export default function UploadModal({ playlistSongs, playlist }: UploadModalAttr
                 let n = 0
                 bundledURLS[n] = []
                 for (const [index, element] of playlistSongs.entries()) {
+                     let percentage = (((index + 1) * 100) / playlistSongs.length).toFixed(1)
+                    setLoading(`Searching Songs Progress: ${percentage}%`)
                     const q = `track:"${element.title}" artist:"${element.artist}"`;
                     const params = new URLSearchParams({
                         q,
@@ -60,7 +64,7 @@ export default function UploadModal({ playlistSongs, playlist }: UploadModalAttr
                         }
                     })
                     const result = await searchSongs.json()
-                    
+
                     if (result.tracks.items.length > 0) {
                         element.url = result.tracks.items[0].uri
                         if (bundledURLS[n].length < 100 && element.url) {
@@ -73,20 +77,20 @@ export default function UploadModal({ playlistSongs, playlist }: UploadModalAttr
                         }
                     }
                 }
-                console.log(bundledURLS)
 
 
-                for(const element of Object.values(bundledURLS)){
+                for (const element of Object.values(bundledURLS)) {
+                    
                     const addSongs = await fetch(`${playlistUrl}/tracks`, {
                         method: "POST",
-                        headers:{
+                        headers: {
                             Authorization: `Bearer ${accessToken}`
                         },
-                        body: JSON.stringify({uris: element})
+                        body: JSON.stringify({ uris: element })
                     })
-                 }
-                 console.log('done')
-                 closeModal()
+                }
+                console.log('done')
+                closeModal()
             }
         } catch (err) {
             console.log(err)
@@ -97,7 +101,9 @@ export default function UploadModal({ playlistSongs, playlist }: UploadModalAttr
         async function addVideosToYT() {
             if (onSubmitIsDone === true) {
                 const videosToAddValues = Object.values(videosToAdd)
-                for (const element of videosToAddValues) {
+                for (const [index, element] of videosToAddValues.entries()) {
+                    let percentage = (((index + 1) * 100) / videosToAddValues.length).toFixed(1)
+                    setLoading(`${percentage}%`)
                     const video = {
                         snippet: {
                             playlistId: playlistId,
@@ -130,6 +136,7 @@ export default function UploadModal({ playlistSongs, playlist }: UploadModalAttr
                         throw new Error(`${res.status} ${res.statusText}: ${err.error?.message}`);
                     }
                 }
+                closeModal()
             }
         }
         addVideosToYT()
@@ -196,18 +203,30 @@ export default function UploadModal({ playlistSongs, playlist }: UploadModalAttr
             }
         }
     }
-    return (<>
-        <form onSubmit={(e) => {
-            onSubmit(e)
-        }}>
-            <button className="submit-button" type="submit">Upload Playlist To Youtube</button>
+    return (<div className="playlist-upload-modal-div">
+        {onSubmitClicked ? (
+            <>
+                <h1>{loading}</h1>
+                <h2>Popup will automatically close when done</h2>
+            </>
+        ) : (
+            <>
+                <form className="upload-modal-form" onSubmit={(e) => {
+                    setOnSubmitClicked(true)
+                    onSubmit(e)
 
-        </form>
-        <form onSubmit={(e) => {
-            onSubmitSpotify(e)
-        }}>
-            <button className="submit-button" type="submit">Upload Playlist To Spotify</button>
-        </form>
+                }}>
+                    <button className="playlist-upload-submit" type="submit">Upload Playlist To Youtube</button>
 
-    </>)
+                </form>
+                <form className="upload-modal-form" onSubmit={(e) => {
+                    setOnSubmitClicked(true)
+                    onSubmitSpotify(e)
+                }}>
+                    <button className="playlist-upload-submit" type="submit">Upload Playlist To Spotify</button>
+                </form>
+            </>
+        )}
+
+    </div>)
 }
