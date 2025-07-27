@@ -58,7 +58,7 @@ app.get('/favicon.ico', (_req, res, _next) => {
 app.get(/^(?!\/?api).*/, (req:Request, res:Response) => {
     res.cookie('XSRF-TOKEN', req.csrfToken());
     res.sendFile(
-        path.join(__dirname, 'react-app', 'index.html')
+        path.join(__dirname, 'react-vite', 'index.html')
     );
 });
 
