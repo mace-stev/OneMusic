@@ -3,14 +3,21 @@ body {
 }
 .profile-dropdown {
     position: absolute;
+    z-index: 500;
 }
 .OneMusic-logo {
     width: 2.5rem;
     height: 2.5rem;
     fill: white;
+    z-index: 500;
    
 }
+.search-bar-form{
+    position: absolute;
+    right: 36%;
+    
 
+}
 
 
 
@@ -54,6 +61,7 @@ body {
     align-items: center;
     gap: 5px;
     border: solid white;
+    
 }
 
 .nav-bar {
@@ -64,6 +72,7 @@ body {
     padding: 10px 60px;
     border-bottom: 1.5px solid white;
     height: 5rem;
+    z-index: 500;
 }
 .OneMusic-title{
     color: white;
@@ -144,5 +153,30 @@ body {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
+}
+@media (max-width: 430px) {
+   .search-bar-form{
+    width: 12rem;
+    right: 10%
+   }
+   .nav-bar{
+    padding: 0
+   }
+   .OneMusic-title{
+    font-size: 1rem
+   }
+   .OneMusic-logo{
+    height: 2rem;
+    width: 2rem;
+   }
+   .search-bar-form-submit{
+    
+   }
+   .song-filter{
+    width: 50%;
+   }
+   .artist-filter{
+    width: 50%;
+   }
 }
 

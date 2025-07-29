@@ -1,4 +1,4 @@
-import { ISong, SongState, ISongActionCreator, ISongForm, ISongId, IFilteredSong } from './types/song'
+import { ISong, IUpdateSong, SongState, ISongActionCreator, ISongForm, ISongId, IFilteredSong } from './types/song'
 import { csrfFetch } from "./csrf";
 // ============ ACTION TYPES =================
 export const GET_ALL_SONGS = 'Songs/getAllSongs';
@@ -108,7 +108,7 @@ export const thunkCreateSong =
 
 // Update a new Song
 export const thunkUpdateSong =
-    (songData: ISongForm): any =>
+    (songData: IUpdateSong): any =>
     async (dispatch: any) => {
         try {
             const response = await csrfFetch(`/api/songs/${songData.id}`, {

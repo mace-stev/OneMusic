@@ -1,19 +1,25 @@
 .add-song-header{
-    color: black;
+    color: white;
     font-size: 1rem;
     text-wrap: wrap;
 }
 .add-song-form{
-    color: black;
     display: flex;
     flex-direction: column;
     height: 20rem;
     width: 20rem;
     text-align: center;
+    padding: 4rem 2rem;
+    background-color: #1e1e1e;
+    color: white;
+    border: solid 2px white
 }
 .add-song-submit{
     margin-top: 10rem;
-    width: 100%;
-    box-sizing: border-box;
+      background-color: #1e1e1e;
+    color: white;
+    border: solid 2px white;
+    padding: 1rem;
+    margin-bottom: 1rem;
     
 }

@@ -125,7 +125,7 @@ function sessionReducer(state = initialState, action: IActionCreator): SessionIn
 
   switch (action.type) {
     case SET_USER:
-      console.log(action.payload, "payload")
+    
       return { ...state, user: action.payload };
     case REMOVE_USER:
       return { ...state, user: null };

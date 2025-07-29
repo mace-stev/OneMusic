@@ -7,6 +7,7 @@ import { thunkGetOnePlaylist } from "../../redux/playlist";
 import { useParams } from 'react-router-dom';
 import SongDeleteModal from '../SongDeleteModal';
 import SongUpdateModal from '../SongUpdateModal/SongUpdateModal';
+import UploadModal from '../UploadModal';
 
 import OpenModalMenuItem from "../Navigation/OpenModalMenuItem";
 function PlaylistDetails() {
@@ -49,7 +50,7 @@ function PlaylistDetails() {
     useEffect(() => {
         const getPlaylists = async () => {
             if (id) {
-                dispatch(thunkGetOnePlaylist(id));
+                dispatch(await thunkGetOnePlaylist(id));
                 setIsLoaded(true);
             }
         };
@@ -57,12 +58,17 @@ function PlaylistDetails() {
             getPlaylists();
         }
     }, [dispatch, id]);
-    console.log(playlist)
+    
 
 
     return (<>
         <div className="playlist-header">
-            <h1>{playlist[0]?.name} Songs</h1>
+            <h1 id='playlist-title'>{playlist[0]?.name} Songs</h1>
+             <div className="playlist-button"><OpenModalMenuItem
+          itemText="upload"
+          onItemClick={closeMenu}
+          modalComponent={<UploadModal playlistSongs={playlistSongs} playlist={playlist}/>}
+        /></div>
         </div>
         <div className="playlist-container-div">
         
@@ -74,6 +80,7 @@ function PlaylistDetails() {
                             <h3 className="playlist-song-artist">{element.artist}</h3>
 
                         </div>
+                
                         <button className="playlist-song-options-button" onClick={(e) => {
                             e.stopPropagation()
                              toggleMenu(index, e)}}>...</button>
@@ -87,14 +94,15 @@ function PlaylistDetails() {
                             <OpenModalMenuItem
                                 itemText="Update Song"
                                 onItemClick={closeMenu}
-                                modalComponent={<SongUpdateModal songData={{id: element.id, previewId: element?.Image?.id}}  />}
+                                modalComponent={<SongUpdateModal playlistId={{id: playlist[0].id}} songData={{id: element.id, 
+                                  
+                                  previewId: element.Image?.id}}  />}
                             />
                         </ul>
                         )}
                     </div>
                 })}
         
-            <div className="apps-linked-container"></div>
         </div>
     </>
 

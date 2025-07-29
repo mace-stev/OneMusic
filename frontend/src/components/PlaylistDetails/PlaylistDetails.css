@@ -20,6 +20,7 @@
     height: 3rem;
     width: 3rem;
     box-sizing: border-box;
+    z-index: -1;
 }
 
 .playlist-song-dropdown {
@@ -40,9 +41,13 @@
     list-style: none;
     border: solid black;
     text-align:center;
+    top: -20%
 }
 .playlist-song-dropdown>li{
     border: solid black;
+}
+.playlist-container-div{
+    height: fit-content
 }
 .playlist-song-options-button{
     background: #1e1e1e;
@@ -65,4 +70,7 @@
 .playlist-song-artist {
     font-size: .8rem;
     margin-left: .2rem;
+}
+#playlist-title{
+    font-size: 1rem
 }

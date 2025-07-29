@@ -36,6 +36,7 @@ function LoginFormModal(): JSX.Element {
       setErrors(serverResponse);
     }
   };
+ 
 
   return (
     <div className="login-modal-div">
@@ -74,6 +75,7 @@ function LoginFormModal(): JSX.Element {
       }}>Demo User</button>
     </div>
   );
+
 }
 
 export default LoginFormModal;

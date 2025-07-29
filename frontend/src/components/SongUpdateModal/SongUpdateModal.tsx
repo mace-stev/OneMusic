@@ -1,5 +1,5 @@
 import './SongUpdateModal.css'
-import { ISongForm } from "../../redux/types/song";
+import { ISong, IUpdateSong } from "../../redux/types/song";
 import { FormEvent, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
@@ -9,7 +9,7 @@ import { thunkUpdateImage } from '../../redux/image';
 
 
 type SongUpdateModalProps={
-  songData: ISongForm,
+  songData: IUpdateSong,
   playlistId : IPlaylistId
 }
 function SongUpdateModal({songData, playlistId}: SongUpdateModalProps){
@@ -23,8 +23,8 @@ function SongUpdateModal({songData, playlistId}: SongUpdateModalProps){
            async function onSubmit(event: FormEvent){
                 event.preventDefault()
                 if(songData.previewId){
-               await dispatch(thunkUpdateImage({id: songData.previewId, url: songURL}))
-                    dispatch(thunkGetOnePlaylist((playlistId.id).toString()))
+                await dispatch(await thunkUpdateImage({id: Number(songData.previewId), url: songURL}))
+                    await dispatch(await thunkGetOnePlaylist((playlistId.id).toString()))
         
                     closeModal()
                 }
