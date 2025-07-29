@@ -7,6 +7,7 @@ import { thunkGetOnePlaylist } from "../../redux/playlist";
 import { useParams } from 'react-router-dom';
 import SongDeleteModal from '../SongDeleteModal';
 import SongUpdateModal from '../SongUpdateModal/SongUpdateModal';
+import UploadModal from '../UploadModal';
 
 import OpenModalMenuItem from "../Navigation/OpenModalMenuItem";
 function PlaylistDetails() {
@@ -62,7 +63,12 @@ function PlaylistDetails() {
 
     return (<>
         <div className="playlist-header">
-            <h1>{playlist[0]?.name} Songs</h1>
+            <h1 id='playlist-title'>{playlist[0]?.name} Songs</h1>
+             <div className="playlist-button"><OpenModalMenuItem
+          itemText="upload"
+          onItemClick={closeMenu}
+          modalComponent={<UploadModal playlistSongs={playlistSongs} playlist={playlist}/>}
+        /></div>
         </div>
         <div className="playlist-container-div">
         
@@ -97,7 +103,6 @@ function PlaylistDetails() {
                     </div>
                 })}
         
-            <div className="apps-linked-container"></div>
         </div>
     </>
 

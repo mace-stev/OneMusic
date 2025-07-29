@@ -29,27 +29,21 @@ router.get('/images', async (req: AuthReq, res: Response, next: NextFunction) =>
     }
 })
 router.post('/images', async (req: AuthReq, res: Response, next: NextFunction) => {
-    try {
-        const {
-            url
-        } = req.body
+  try {
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ message: 'url is required' });
 
-
-
-        const image = await Image.create({
-            url
-        })
-
-        res.status(200).json({
-            id: image.id,
-            url: url
-        })
-
-
-    } catch (error) {
-        next(error);
+    const oldImage = await Image.findOne({ where: { url } });
+    if (oldImage) {
+      return res.status(200).json({ id: oldImage.id, url: oldImage.url }); 
     }
-})
+
+    const image = await Image.create({ url });
+    return res.status(201).json({ id: image.id, url: image.url });         
+  } catch (error) {
+    return next(error);
+  }
+});
 router.get('/images/:id', async (req: AuthReq, res: Response, next: NextFunction) => {
     try {
         const imageId = req.params.id

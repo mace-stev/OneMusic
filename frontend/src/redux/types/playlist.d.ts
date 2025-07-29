@@ -17,6 +17,7 @@ export interface IPlaylist {
         artist: string;
         id: number;
         title: string;
+        url?: string;
     }[]
     
 }

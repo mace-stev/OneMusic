@@ -24,9 +24,9 @@ function AddSongModal({songId}: AddSongAttributes){
             getPlaylists();
         }
     }, [dispatch, playlists.length, isLoaded]);
-    function onSubmit(e: FormEvent){
+    async function onSubmit(e: FormEvent){
         e.preventDefault();
-        playlistValues.forEach(async(element)=>{
+        for(const element of playlistValues){
             try {
                 let songData={
                     songId: songId
@@ -49,7 +49,7 @@ function AddSongModal({songId}: AddSongAttributes){
                         const errorMessages = await err.json();
                         return errorMessages;
                     }
-        })
+        }
     }
     return(<>
     <form className="add-song-form" onSubmit={(e)=>{onSubmit(e)}}>

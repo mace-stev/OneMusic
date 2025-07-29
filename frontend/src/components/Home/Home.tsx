@@ -12,32 +12,35 @@ import { thunkAuthenticate } from "../../redux/session";
 import { useModal } from '../../context/Modal';
 import SignupFormModal from "../SignupFormModal";
 import youtube from "../../yt_logo_mono_dark.png";
+import spotify from "../../spotify-1759471_1280.jpg"
 import bcrypt from "bcryptjs";
 import TransferModal from "../TransferModal";
+import { OAuthParams } from "../../../types/youtube";
+import { createOAuthForm, oauth2SignIn } from "../../../utils/YTAuth"
+import { sha256, codeVerifier, base64encode } from "../../../utils/SpotifyAuth"
+import PlaylistMergeModal from "../PlaylistMergeModal";
+import { spotifySignIn } from "../../../utils/SpotifyAuth";
 
 
 
-type OAuthParams = {
-  client_id?: string;
-  redirect_uri?: string;
-  response_type?: string;
-  scope?: string;
-  include_granted_scopes?: string;
-  state?: string;
-  access_token?: string;
-  [key: string]: string | undefined;
-};
+
+
 
 function Home() {
   const playlists = useSelector((state: RootState) => state.playlist.allPlaylists);
   const user = useSelector((state: RootState) => state.session.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [spotifyAccessCode, setSpotifyAccessCode] = useState(localStorage.getItem('spotify_access_token'))
   const { setModalContent } = useModal();
+ 
+  
+
+  
+  
 
 
-
-  //////Youtube OAuth
+  //////Youtube OAuth////////
   const oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
   const initialParams: OAuthParams = JSON.parse(
     import.meta.env.VITE_PARAMS || '{}'
@@ -47,34 +50,38 @@ function Home() {
   const [store, setStore] = useState<OAuthParams>(JSON.parse(localStorage.getItem('oauth2-test-params') || '{}'));
   const [isLoaded, setIsLoaded] = useState(false);
 
-useEffect(() => {
-  const hash = window.location.hash.substring(1);
-  if (!hash) return;
-  const updated: OAuthParams = { ...params };
-  new URLSearchParams(hash).forEach((val, key) => {
-    (updated as any)[key] = val;
-  });
+  useEffect(() => {
+    const hash = window.location.hash.substring(1);
+    if (!hash) return;
+    const updated: OAuthParams = { ...store };
+    new URLSearchParams(hash).forEach((val, key) => {
+      (updated as any)[key] = val;
+    });
 
-  setParams(updated);
-  setStore(updated);
-  localStorage.setItem("oauth2-test-params", JSON.stringify(updated));
-  window.history.replaceState(
-    {},
-    document.title,
-    window.location.pathname + window.location.search
-  );
-  if (updated.state === "try_sample_request") {
-    trySampleRequest(updated);
-  }
-}, []);
+    setParams(updated);
+    setStore(updated);
+    localStorage.setItem("oauth2-test-params", JSON.stringify(updated));
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname + window.location.search
+    );
+    if (updated.state === "try_sample_request") {
+      trySampleRequest();
+    }
+  }, []);
 
 
-  async function trySampleRequest(currentParams: OAuthParams) {
-    const localParams: OAuthParams = JSON.parse(localStorage.getItem('oauth2-test-params') || '{}');
+  async function trySampleRequest() {
+    const localParams: OAuthParams =
+      JSON.parse(localStorage.getItem('oauth2-test-params') || '{}');
+
     setParams(localParams);
     setStore(localParams);
 
+
     const stateIsValid = await verifyState(localParams.state || '');
+
 
     if (localParams.access_token && stateIsValid) {
       const xhr = new XMLHttpRequest();
@@ -82,47 +89,32 @@ useEffect(() => {
         'POST',
         `https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true&access_token=${localParams.access_token}`
       );
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          console.log(xhr.response);
-        } else if (xhr.readyState === 4 && xhr.status === 401) {
-          const form = createOAuthForm();
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState !== 4) return;
+
+        else if (xhr.status === 401) {
+
+          localStorage.removeItem('oauth2-test-params');
+          setParams(initialParams);
+          setStore(initialParams);
+
+          const form = createOAuthForm(initialParams);
           oauth2SignIn(form);
         }
       };
       xhr.send(null);
-    } else {
-      const form = createOAuthForm();
-      console.log(store)
+    }
+    else {
+
+      localStorage.removeItem('oauth2-test-params');
+      setParams(initialParams);
+      setStore(initialParams);
+
+      const form = createOAuthForm(initialParams);
       oauth2SignIn(form);
     }
   }
-  function createOAuthForm(): HTMLFormElement {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = oauth2Endpoint;
-    form.onSubmit((e: FormEvent)=>{
-      e.preventDefault()
-    })
-    return form;
-  }
 
-  function oauth2SignIn(form: HTMLFormElement) {
-    for (const p in params) {
-      if (params.hasOwnProperty(p)) {
-        const input = document.createElement('input');
-        input.setAttribute('type', 'hidden');
-        input.setAttribute('name', p);
-        input.setAttribute('value', params[p] || '');
-        form.appendChild(input);
-      }
-    }
-   
-    document.body.appendChild(form);
-    
-  
-    form.submit();
-  }
 
   async function verifyState(stateToCheck: string): Promise<boolean> {
     const storedState = sessionStorage.getItem('oauth2-state');
@@ -131,8 +123,8 @@ useEffect(() => {
 
     return bcrypt.compare(stateToCheck, storedState);
   }
-//////////////////////////////////////////
-//////////////////////////////////////////
+  //////////////////////////////////////////
+  //////////////////////////////////////////
   //////////////Modal Menu Functionality////////
   const [showMenu, setShowMenu] = useState<Record<number, boolean>>({});
   const ulRefs = useRef<Record<number, HTMLUListElement | null>>({});
@@ -183,10 +175,10 @@ useEffect(() => {
   useEffect(() => {
     if (!user) {
       thunkAuthenticate()
-      if(!user){
-      setModalContent(<SignupFormModal />)
+      if (!user) {
+        setModalContent(<SignupFormModal />)
       }
-     }
+    }
   }, [user])
 
   return (<div className="home-page">
@@ -196,7 +188,7 @@ useEffect(() => {
         <div className="playlist-button"><OpenModalMenuItem
           itemText="Merge"
           onItemClick={closeMenu}
-          modalComponent={<CreatePlaylistModal />}
+          modalComponent={<PlaylistMergeModal playlists={playlists} />}
         /></div>
 
 
@@ -206,7 +198,7 @@ useEffect(() => {
           modalComponent={<CreatePlaylistModal />}
         /></div>
 
-         <div className="playlist-button"><OpenModalMenuItem
+        <div className="playlist-button"><OpenModalMenuItem
           itemText="transfer"
           onItemClick={closeMenu}
           modalComponent={<TransferModal />}
@@ -243,27 +235,36 @@ useEffect(() => {
     </section>
     <div className="apps-linked-container">
       {!store.access_token ? (
-        <form
-          method="POST"
-          className="YT-sign-in-form"
-          action={oauth2Endpoint}
-          onSubmit={(e) => {
-            e.preventDefault();
-
-            const form = e.target as HTMLFormElement;
+        <button
+          className="YT-sign-in"
+          onClick={() => {
+            const form = createOAuthForm(initialParams);
             oauth2SignIn(form);
           }}
         >
-          <button type="submit" className="YT-sign-in">
-            <img src={youtube} />Sign in to YouTube
-          </button>
-        </form>
+          <img src={youtube} /> Sign in to YouTube
+        </button>
       )
         : (
           <button className="YT-sign-in">
             <img src={youtube} />Signed in to Youtube
           </button>
         )}
+      {!spotifyAccessCode
+        ? (
+          <button
+            className="spotify-sign-in"
+            onClick={() => spotifySignIn()}
+          >
+            <img src={spotify} /> Sign in to Spotify
+          </button>
+        )
+        : (
+          <button className="spotify-sign-in">
+            <img src={spotify} /> Signed in to Spotify
+          </button>
+        )
+      }
     </div>
 
 

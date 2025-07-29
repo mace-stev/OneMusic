@@ -5,6 +5,7 @@ import PlaylistDetails from '../components/PlaylistDetails';
 import Home from '../components/Home'
 import Layout from './Layout';
 import SongSearchPage from '../components/SongSearchPage';
+import SpotifyCallback from "../components/SpotifyCallback"
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
       {
         path: "/songs/search",
         element: <SongSearchPage/>
+      },
+      {
+        path: "/SpotifyCallback",
+        element: <SpotifyCallback/>
       }
     ],
   },

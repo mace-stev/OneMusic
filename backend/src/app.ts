@@ -31,6 +31,13 @@ app.use(
         policy: "cross-origin"
     })
 );
+app.use(csurf({
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: isProduction,
+  },
+}));
 
 //apply middleware to allow for usage of static react-vite from build
 app.use(express.static(path.join(__dirname, "react-vite")));
@@ -51,7 +58,7 @@ app.get('/favicon.ico', (_req, res, _next) => {
 app.get(/^(?!\/?api).*/, (req:Request, res:Response) => {
     res.cookie('XSRF-TOKEN', req.csrfToken());
     res.sendFile(
-        path.join(__dirname, 'react-app', 'index.html')
+        path.join(__dirname, 'react-vite', 'index.html')
     );
 });
 
