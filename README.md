@@ -1,12 +1,10 @@
 
-
 # OneMusic
 
 ## Overview
 
-
 ### Tech Stack:
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=500&color=007acc&width=435&lines=TypeScript;Express;Sequelize;React;Redux;PostgreSQL;SQLite3;Docker;HTML5;CSS3)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=500&color=007acc&width=435&lines=TypeScript;Express;Sequelize;React;Redux;PostgreSQL;Docker;HTML5;CSS3)](https://git.io/typing-svg)
 
 - Frontend: React with TypeScript, ensuring type safety and maintainability.
 - Backend: Node.js and Express.js, utilizing TypeScript for server-side development.
@@ -40,8 +38,4 @@
 
 https://github.com/user-attachments/assets/ea1907e3-0f0e-4055-8cf8-2a01c95ef417
 
-
-
-[package.json](https://github.com/user-attachments/files/21551327/package.json)[README.md](https://github.com/user-attachments/files/21551329/README.md)
-[package-lock.json](https://github.com/user-attachments/files/21551328/package-lock.json)
 
