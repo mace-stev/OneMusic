@@ -14,7 +14,7 @@ import { csrfFetch } from "../../redux/csrf";
 import { createOAuthForm, oauth2SignIn } from "../../../utils/YTAuth"
 import { spotifySignIn } from "../../../utils/SpotifyAuth";
 import { spotifyPlaylist, SpotifyPlaylistResource, SpotifyPlaylistItem, FilteredSpotifyTrack, SpotifyPlaylistItems, SpotifyPlaylistTrack, SpotifyPlaylistArtist } from "../../../types/spotify"
-
+import youtube from "../../yt_logo_mono_dark.png";
 
 function TransferModal() {
   const [store, setStore] = useState<OAuthParams>(JSON.parse(localStorage.getItem('oauth2-test-params') || '{}'));
@@ -542,8 +542,8 @@ function TransferModal() {
           })}
 
           {youtubeClicked === true && (
-            <button type="submit" className="playlist-transfer-submit">
-              YT Submit
+            <button type="submit" className="YT-submit">
+               <img src={youtube} /> YouTube Submit
             </button>
           )}
         </form>
