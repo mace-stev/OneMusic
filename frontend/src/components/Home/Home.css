@@ -14,6 +14,10 @@
     height: 1.5rem;
     margin: auto .5rem;
 }
+.home-page{
+    height: 200rem;
+    overflow: scroll;
+}
 
 
 .playlist-options-button {
@@ -91,7 +95,9 @@ body,
     height: fit-content;
     width: 100%;
     background-color: #1e1e1e;
-    color: white
+    color: white;
+    box-sizing: border-box;
+    margin: 0;
 }
 
 .playlist-container-div {
@@ -203,9 +209,37 @@ body,
     text-wrap: nowrap;
 }
 
+
 @media (max-width: 430px) {
     .playlist-image-container>img {
         width: 100%;
         height: 100%;
     }
+    .playlist-container {
+    border-bottom: solid white;
+    width: 12rem;
+    height: 12rem;
+    margin: 0;
+    position: relative;
+
+}
+.playlist-image-container {
+    width: 12rem;
+    height: 8rem;
+}
+.apps-linked-container{
+    margin-left: 13rem;
+    width: 40%
+}
+.playlist-container-div {
+  
+    width: 12rem;
+  
+}
+.playlist-section{
+    width: 60%
+}
+.home-page{
+    justify-content: left;
+}
 }

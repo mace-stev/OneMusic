@@ -1,0 +1,10 @@
+.terms-of-service{
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+.a-tag{
+    text-decoration: underline;
+    color: white
+}

@@ -6,6 +6,8 @@ import Home from '../components/Home'
 import Layout from './Layout';
 import SongSearchPage from '../components/SongSearchPage';
 import SpotifyCallback from "../components/SpotifyCallback"
+import TermsOfService from '../components/TermsOfService';
+import PrivacyPolicy from '../components/PrivacyPolicy';
 
 export const router = createBrowserRouter([
   {
@@ -34,6 +36,14 @@ export const router = createBrowserRouter([
       {
         path: "/SpotifyCallback",
         element: <SpotifyCallback/>
+      },
+      {
+        path: "/Terms-Of-Service",
+        element: <TermsOfService/>
+      },
+      {
+        path: "Privacy-Policy",
+        element: <PrivacyPolicy/>
       }
     ],
   },

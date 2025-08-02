@@ -1,0 +1,19 @@
+.footer{
+    display: flex;
+    border: solid 1px white;
+    padding: 1rem;
+    font-size: 1rem;
+    margin-top: 5rem;
+    position:sticky;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    box-sizing: border-box;
+    background: black;
+}
+.footer>a{
+    margin: 0 1rem;
+    color: white;
+    text-decoration: none;
+}
