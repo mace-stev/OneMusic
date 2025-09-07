@@ -256,4 +256,17 @@ body,
 .spotify-sign-in{
     font-size: .5rem;
 }
+.playlist-header{
+    width: 70%
+}
+.playlist-header>h1{
+    font-size: 1rem;
+    margin-left: 1rem;
+}
+.playlist-button{
+    width: 2rem;
+    padding: 0;
+    height: 1rem;
+    font-size: .5rem
+}
 }
