@@ -237,9 +237,23 @@ body,
   
 }
 .playlist-section{
-    width: 60%
+    width: 70%
 }
 .home-page{
     justify-content: left;
+}
+.YT-sign-in>img{
+    margin: auto 0.1rem auto 0.25rem;
+    height: .75rem;
+}
+.YT-sign-in{
+    font-size: .5rem;
+}
+.spotify-sign-in>img{
+    margin: auto 0.1rem auto 0.25rem;
+    height: 1rem;
+}
+.spotify-sign-in{
+    font-size: .5rem;
 }
 }
