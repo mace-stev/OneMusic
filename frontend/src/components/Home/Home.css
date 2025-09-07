@@ -265,7 +265,7 @@ body,
 }
 .playlist-button{
     width: 2rem;
-    padding: 0;
+    padding: .1rem;
     height: 1rem;
     font-size: .5rem
 }
